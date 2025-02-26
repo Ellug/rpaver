@@ -19,7 +19,6 @@ type CharacterDetail = {
   familyRelation: string;
   gender: string;
   hobby: string;
-  images?: string[];
   marriage: string;
   name: string;
   parent: string;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { db, storage } from "@/libs/firebaseConfig";
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
+import { ref, getDownloadURL, listAll } from "firebase/storage";
 import LoadingModal from "@/components/LoadingModal";
 // @ts-expect-error: TypeScript가 Slider 모듈을 인식하지 못함
 import Slider from "react-slick";
@@ -21,7 +21,6 @@ type CharacterDetail = {
   familyRelation: string;
   gender: string;
   hobby: string;
-  images?: string[];
   name: string;
   party: string;
   personality: string;
@@ -45,6 +44,8 @@ export default function CharacterDetailPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
   useEffect(() => {
     if (!decodedId) return;
 
@@ -55,7 +56,11 @@ export default function CharacterDetailPage() {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setCharacter(docSnap.data() as CharacterDetail);
+          const charData = docSnap.data() as CharacterDetail;
+          setCharacter(charData);
+          
+          // 🔹 Storage에서 이미지 불러오기
+          await fetchCharacterImages(charData.name, charData.family);
         } else {
           console.error("🔥 해당 캐릭터를 찾을 수 없습니다.");
         }
@@ -69,6 +74,31 @@ export default function CharacterDetailPage() {
     fetchCharacter();
   }, [decodedId]);
 
+  // 🔹 Storage에서 해당 캐릭터 폴더 내 이미지 가져오기
+  const fetchCharacterImages = async (name: string, family: string) => {
+    const folderName = family ? `${name} ${family}` : name;
+    const folderRef = ref(storage, `charactersIMG/${folderName}/`);
+  
+    try {
+      const result = await listAll(folderRef);
+  
+      if (result.items.length === 0) {
+        console.warn(`⚠️ 이미지 없음: charactersIMG/${folderName}/`);
+        return;
+      }
+  
+      const urls = await Promise.all(
+        result.items.map(async (item) => await getDownloadURL(item))
+      );
+  
+      console.log(`✅ 불러온 이미지 (${folderName}):`, urls);
+      setImageUrls(urls);
+    } catch (error) {
+      console.error(`🔥 Storage 이미지 가져오기 실패 (${folderName}):`, error);
+    }
+  };
+  
+
   if (loading) return <LoadingModal />;
   if (!character) return <div className="text-center text-gray-400 mt-10">캐릭터 정보를 찾을 수 없습니다.</div>;
 
@@ -81,14 +111,6 @@ export default function CharacterDetailPage() {
       // 🔹 Firestore에서 캐릭터 문서 삭제
       await deleteDoc(doc(db, "character", decodedId));
       await deleteDoc(doc(db, "character_detail", decodedId));
-
-      // 🔹 Storage에서 캐릭터의 이미지 삭제
-      if (character.images) {
-        for (const imageUrl of character.images) {
-          const imageRef = ref(storage, imageUrl);
-          await deleteObject(imageRef).catch(() => console.warn("이미지 삭제 실패:", imageUrl));
-        }
-      }
 
       alert("캐릭터가 삭제되었습니다.");
       router.push("/board/character"); // 캐릭터 목록으로 이동
@@ -108,11 +130,11 @@ export default function CharacterDetailPage() {
   return (
     <div className="max-w-4xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative">
       {/* 캐릭터 이미지 슬라이더 */}
-      {character.images && character.images.length > 0 && (
+      {imageUrls.length > 0 && (
         <div className="relative flex justify-center">
           <div className="w-full max-w-lg">
             <Slider dots infinite speed={100} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
-              {character.images.map((img, index) => (
+              {imageUrls.map((img, index) => (
                 <div key={index} className="flex justify-center">
                   <img
                     src={img}
@@ -128,7 +150,7 @@ export default function CharacterDetailPage() {
       )}
 
       {/* 캐릭터 이름 및 소속 */}
-      <div className="text-center mt-6">
+      <div className="text-center mt-12">
         {character.title && <p className="text-lg text-gray-400">{character.title}</p>}
         <h1 className="text-3xl font-bold text-gold">{character.name} {character.family}</h1>
         <p className="text-gray-300">{character.party || "소속 없음"}</p>
@@ -137,18 +159,20 @@ export default function CharacterDetailPage() {
       {/* 기본 정보 */}
       <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
         {[
-          { label: "출생", value: character.birth },
-          { label: "출신", value: character.country },
-          { label: "성별", value: character.gender },
+          { label: "이름", value: character.name },
           { label: "성(가문)", value: character.family },
+          { label: "출생", value: character.birth },
+          { label: "성별", value: character.gender },
           { label: "칭호", value: character.title },
-          { label: "성격", value: character.personality },
+          { label: "성향", value: character.personality },
+          { label: "출신", value: character.country },
+          { label: "소속", value: character.party },
           { label: "신체", value: character.body },
           { label: "유닛", value: character.unit },
           { label: "무기", value: character.weapon },
+          { label: "능력", value: character.skill },
           { label: "특기", value: character.talent },
           { label: "취미", value: character.hobby },
-          { label: "능력", value: character.skill },
           { label: "성우", value: character.voice },
           { label: "시리즈", value: character.series },
           { label: "가족 관계", value: character.familyRelation },
