@@ -19,6 +19,8 @@ type Character = {
   body: string;
 };
 
+type SortKey = "birth" | "height" | "weight" | "chest";
+
 // 테이블 컬럼 타입 정의
 type Column =
   | { key: keyof Character; label: string; mobile?: boolean }
@@ -50,27 +52,54 @@ export default function CharacterPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentYear, setCurrentYear] = useState<string>("52");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortKey, setSortKey] = useState<SortKey | "birth">("birth");
+
+  const extractBodyValues = (body: string) => {
+    if (!body) return { height: 0, weight: 0, chest: "A" }; // 기본값 설정
+  
+    const heightMatch = body.match(/(\d+)\s?cm/);
+    const weightMatch = body.match(/(\d+)\s?kg/);
+    const chestMatch = body.match(/\b([A-Z])\b/);
+  
+    return {
+      height: heightMatch ? parseInt(heightMatch[1], 10) : 0,
+      weight: weightMatch ? parseInt(weightMatch[1], 10) : 0,
+      chest: chestMatch ? chestMatch[1] : "A",
+    };
+  };
+  
 
   useEffect(() => {
-    sortCharacters(characters, sortOrder);
-  }, [characters, sortOrder]);
+    sortCharacters(characters, sortKey, sortOrder);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [characters, sortKey, sortOrder]);
 
   // 정렬 함수
-  const sortCharacters = (data: Character[], order: "asc" | "desc") => {
-    const sortedData = [...data].sort((a, b) =>
-      order === "desc"
-        ? parseInt(b.birth, 10) - parseInt(a.birth, 10)
-        : parseInt(a.birth, 10) - parseInt(b.birth, 10)
-    );
+  const sortCharacters = (data: Character[], key: SortKey, order: "asc" | "desc") => {
+    const sortedData = [...data].sort((a, b) => {
+      const aValues = extractBodyValues(a.body);
+      const bValues = extractBodyValues(b.body);
+  
+      const aValue: number | string = key === "birth" ? parseInt(a.birth || "0", 10) : aValues[key];
+      const bValue: number | string = key === "birth" ? parseInt(b.birth || "0", 10) : bValues[key];
+  
+      if (key === "chest" && typeof aValue === "string" && typeof bValue === "string") {
+        return order === "desc" ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+      }
+  
+      return order === "desc" ? (bValue as number) - (aValue as number) : (aValue as number) - (bValue as number);
+    });
+  
     setSortedCharacters(sortedData);
   };
-
-  // 정렬 토글
-  const toggleSortOrder = () => {
-    const newOrder = sortOrder === "desc" ? "asc" : "desc";
+  
+  const toggleSortOrder = (key: SortKey) => {
+    const newOrder = sortKey === key && sortOrder === "desc" ? "asc" : "desc";
+    setSortKey(key);
     setSortOrder(newOrder);
-    sortCharacters(characters, newOrder);
+    sortCharacters(characters, key, newOrder);
   };
+  
 
   // 현재 연도 변경 핸들러
   const handleYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,12 +160,19 @@ export default function CharacterPage() {
             />
           </div>
 
-          <button
-            onClick={toggleSortOrder}
-            className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-700 transition"
-          >
-            {sortOrder === "desc" ? "내림차순 ↓" : "오름차순 ↑"}
+          <button onClick={() => toggleSortOrder("birth")} className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-700 transition">
+            연도 {sortKey === "birth" && (sortOrder === "desc" ? "↓" : "↑")}
           </button>
+          <button onClick={() => toggleSortOrder("height")} className="px-4 py-2 bg-purple-900 text-white rounded-md hover:bg-purple-700 transition">
+            키 {sortKey === "height" && (sortOrder === "desc" ? "↓" : "↑")}
+          </button>
+          <button onClick={() => toggleSortOrder("weight")} className="px-4 py-2 bg-red-900 text-white rounded-md hover:bg-red-700 transition">
+            체중 {sortKey === "weight" && (sortOrder === "desc" ? "↓" : "↑")}
+          </button>
+          <button onClick={() => toggleSortOrder("chest")} className="px-4 py-2 bg-yellow-900 text-white rounded-md hover:bg-yellow-700 transition">
+            가슴 {sortKey === "chest" && (sortOrder === "desc" ? "↓" : "↑")}
+          </button>
+
         </div>
 
         <div className="flex items-center gap-2">
