@@ -16,6 +16,7 @@ export default function LoginPage() {
     if (userData) {
       router.replace("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData])
 
   const handleLogin = async () => {

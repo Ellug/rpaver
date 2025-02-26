@@ -3,43 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { storage } from "@/libs/firebaseConfig";
 import { ref, listAll, getDownloadURL, deleteObject, uploadBytes } from "firebase/storage";
-import { db } from "@/libs/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
-import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
+import { useCharacterContext } from "@/contexts/CharacterContext";
 
 export default function FileManager() {
-  const router = useRouter();
+  const { characterNames } = useCharacterContext();
   const [currentPath, setCurrentPath] = useState<string>("/");
   const [files, setFiles] = useState<{ name: string; url?: string; isFolder: boolean }[]>([]);
   const [newFolderName, setNewFolderName] = useState<string>("");
-  const [fileToMove, setFileToMove] = useState<string | null>(null);
-  const [moveDestination, setMoveDestination] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false); // 🔹 로딩 상태 추가
-
-  const [characterFolders, setCharacterFolders] = useState<string[]>([]);
-
-  const fetchCharacterFolders = async () => {
-    try {
-      console.log("📡 Firestore에서 캐릭터 목록 불러오는 중...");
-
-      const querySnapshot = await getDocs(collection(db, "character"));
-      const folders = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        const folderName = data.family ? `${data.name} ${data.family}` : data.name;
-        return folderName;
-      });
-
-      console.log("✅ 불러온 캐릭터 폴더 리스트:", folders);
-      setCharacterFolders(folders);
-    } catch (error) {
-      console.error("🔥 Firestore 캐릭터 목록 불러오기 오류:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchCharacterFolders();
-  }, []);
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // 🔹 현재 경로의 파일 및 폴더 가져오기
   const fetchFiles = async () => {
@@ -70,6 +43,7 @@ export default function FileManager() {
 
   useEffect(() => {
     fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPath]);
 
   // 🔹 뒤로가기 기능
@@ -159,6 +133,48 @@ export default function FileManager() {
     }
   };
 
+  // 🔹 파일 선택 토글
+  const toggleFileSelection = (fileName: string) => {
+    setSelectedFiles((prev) =>
+      prev.includes(fileName) ? prev.filter((f) => f !== fileName) : [...prev, fileName]
+    );
+  };
+
+  // 🔹 파일 이동 기능 (여러 개 이동 가능)
+  const handleMoveFiles = async (destinationFolder: string) => {
+    if (selectedFiles.length === 0) return;
+    if (!window.confirm(`"${selectedFiles.join(", ")}"을(를) "${destinationFolder}" 폴더로 이동하시겠습니까?`)) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/moveFile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          files: selectedFiles.map((file) => ({
+            oldPath: `${currentPath}/${file}`,
+            newPath: `charactersIMG/${destinationFolder}/${file}`,
+          })),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "파일 이동 실패");
+      }
+
+      console.log("✅ 파일 이동 성공:", result.message);
+      alert("파일 이동 성공!");
+      fetchFiles(); // 이동 후 파일 목록 갱신
+    } catch (error) {
+      console.error("🔥 파일 이동 오류:", error);
+    } finally {
+      setSelectedFiles([]); // 선택 초기화
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-4xl mx-auto">
       {isLoading && <LoadingModal />} {/* 🔹 로딩 중일 때 모달 표시 */}
@@ -186,6 +202,11 @@ export default function FileManager() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedFiles.includes(file.name)}
+                  onChange={() => toggleFileSelection(file.name)}
+                />
                 {file.url && file.name.match(/\.(jpeg|jpg|png|gif)$/i) ? (
                   <img src={file.url} alt={file.name} className="max-w-64 max-h-64 object-contain rounded-md border border-gray-600" />
                 ) : (
@@ -199,6 +220,24 @@ export default function FileManager() {
           </div>
         ))}
       </div>
+
+      {/* 🔹 이동할 폴더 선택 UI */}
+      {selectedFiles.length > 0 && (
+        <div className="mt-4 p-4 border border-gray-700 rounded-lg">
+          <h2 className="text-lg font-semibold mb-2">📦 이동할 폴더 선택</h2>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {characterNames.map((folder) => (
+              <button
+                key={folder}
+                className="p-2 bg-gray-800 hover:bg-gray-700 rounded-md text-white text-left"
+                onClick={() => handleMoveFiles(folder)}
+              >
+                📁 {folder}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 🔹 폴더 추가 */}
       <div className="mt-4 flex gap-2">

@@ -102,7 +102,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
     setLoading(true);
 
     try {
-      let updatedImages = [...(formData.images || [])];
+      const updatedImages = [...(formData.images || [])];
 
       // 1️⃣ **삭제된 이미지 Firebase Storage에서 제거**
       for (const imageUrl of removedImages) {

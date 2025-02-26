@@ -45,7 +45,7 @@ const columns: Column[] = [
 
 export default function CharacterPage() {
   const router = useRouter();
-  const { characters } = useCharacterContext(); // 🔹 Context에서 데이터 가져오기
+  const { characters } = useCharacterContext();
   const [sortedCharacters, setSortedCharacters] = useState<Character[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentYear, setCurrentYear] = useState<string>("52");
@@ -114,7 +114,7 @@ export default function CharacterPage() {
 
   return (
     <div className="my-10 md:my-12 p-6">
-      {!characters.length && <LoadingModal />} {/* 로딩 모달 추가 */}
+      {!characters.length && <LoadingModal />}
 
       {/* 정렬 & 연도 & 검색 UI */}
       <div className="flex flex-col md:flex-row md:w-[90%] max-w-[1920px] mx-auto justify-between items-center gap-4 mb-4 text-sm">
