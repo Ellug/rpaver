@@ -1,22 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { db } from "@/libs/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { useParams, useRouter } from "next/navigation";
+import { db, storage } from "@/libs/firebaseConfig";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
 import LoadingModal from "@/components/LoadingModal";
 // @ts-expect-error: TypeScript가 Slider 모듈을 인식하지 못함
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ImageModal from "@/components/ImageModal";
-import { useRouter } from "next/navigation";
 
 type CharacterDetail = {
   birth: string;
   body: string;
-  brother: string;
-  child: string;
   country: string;
   detail: string;
   family: string;
@@ -24,9 +22,7 @@ type CharacterDetail = {
   gender: string;
   hobby: string;
   images?: string[];
-  marriage: string;
   name: string;
-  parent: string;
   party: string;
   personality: string;
   series: string;
@@ -40,7 +36,6 @@ type CharacterDetail = {
 
 export default function CharacterDetailPage() {
   const router = useRouter();
-
   const { id } = useParams();
   const characterId = Array.isArray(id) ? id[0] : id;
   const decodedId = characterId ? decodeURIComponent(characterId) : "";
@@ -48,6 +43,7 @@ export default function CharacterDetailPage() {
   const [character, setCharacter] = useState<CharacterDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!decodedId) return;
@@ -55,7 +51,7 @@ export default function CharacterDetailPage() {
     const fetchCharacter = async () => {
       setLoading(true);
       try {
-        const docRef = doc(db, "character_details", decodedId);
+        const docRef = doc(db, "character_detail", decodedId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -76,37 +72,35 @@ export default function CharacterDetailPage() {
   if (loading) return <LoadingModal />;
   if (!character) return <div className="text-center text-gray-400 mt-10">캐릭터 정보를 찾을 수 없습니다.</div>;
 
-  // 기본 정보 배열
-  const Info = [
-    { label: "출생", value: character.birth },
-    { label: "출신", value: character.country },
-    { label: "성별", value: character.gender },
-    { label: "성(가문)", value: character.family },
-    { label: "칭호", value: character.title },
-    { label: "성격", value: character.personality },
-    { label: "신체", value: character.body },
-    { label: "유닛", value: character.unit },
-    { label: "무기", value: character.weapon },
-    { label: "특기", value: character.talent },
-    { label: "취미", value: character.hobby },
-    { label: "능력", value: character.skill },
-    { label: "성우", value: character.voice },
-    { label: "시리즈", value: character.series },
-    { label: "가족 관계", value: character.familyRelation },
-  ];
+  // 🔹 캐릭터 삭제 함수
+  const handleDeleteCharacter = async () => {
+    if (!decodedId) return;
+    setLoading(true);
 
-  // 이미지 슬라이더 설정
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 100,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-    adaptiveHeight: true,
+    try {
+      // 🔹 Firestore에서 캐릭터 문서 삭제
+      await deleteDoc(doc(db, "character", decodedId));
+      await deleteDoc(doc(db, "character_detail", decodedId));
+
+      // 🔹 Storage에서 캐릭터의 이미지 삭제
+      if (character.images) {
+        for (const imageUrl of character.images) {
+          const imageRef = ref(storage, imageUrl);
+          await deleteObject(imageRef).catch(() => console.warn("이미지 삭제 실패:", imageUrl));
+        }
+      }
+
+      alert("캐릭터가 삭제되었습니다.");
+      router.push("/board/character"); // 캐릭터 목록으로 이동
+    } catch (error) {
+      console.error("🔥 캐릭터 삭제 중 오류 발생:", error);
+      alert("캐릭터 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 수정 버튼 클릭 시 이동
+  // 🔹 수정 버튼 클릭 시 이동
   const handleEditClick = () => {
     router.push(`/board/character/edit/${encodeURIComponent(decodedId)}`);
   };
@@ -117,14 +111,14 @@ export default function CharacterDetailPage() {
       {character.images && character.images.length > 0 && (
         <div className="relative flex justify-center">
           <div className="w-full max-w-lg">
-            <Slider {...sliderSettings}>
+            <Slider dots infinite speed={100} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
               {character.images.map((img, index) => (
                 <div key={index} className="flex justify-center">
                   <img
                     src={img}
                     alt={character.name}
                     className="rounded-lg w-full h-80 object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => setSelectedImage(img)} // 클릭 시 확대 모달 오픈
+                    onClick={() => setSelectedImage(img)}
                   />
                 </div>
               ))}
@@ -142,28 +136,57 @@ export default function CharacterDetailPage() {
 
       {/* 기본 정보 */}
       <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
-        {Info.map((info, index) => (
+        {[
+          { label: "출생", value: character.birth },
+          { label: "출신", value: character.country },
+          { label: "성별", value: character.gender },
+          { label: "성(가문)", value: character.family },
+          { label: "칭호", value: character.title },
+          { label: "성격", value: character.personality },
+          { label: "신체", value: character.body },
+          { label: "유닛", value: character.unit },
+          { label: "무기", value: character.weapon },
+          { label: "특기", value: character.talent },
+          { label: "취미", value: character.hobby },
+          { label: "능력", value: character.skill },
+          { label: "성우", value: character.voice },
+          { label: "시리즈", value: character.series },
+          { label: "가족 관계", value: character.familyRelation },
+        ].map((info, index) => (
           <div key={index}>
             <p className="font-bold text-gray-400">{info.label}: <span className="font-semibold text-white">{info.value || "-"}</span></p>
           </div>
         ))}
       </div>
 
-      {/* 상세 설명을 최하단에 배치 */}
+      {/* 상세 설명 */}
       <div className="mt-10">
         <h2 className="text-xl font-semibold text-gold">상세 설명</h2>
         <p className="mt-2 text-gray-300 whitespace-pre-line">{character.detail || "설명 없음"}</p>
       </div>
 
-      {/* 수정 버튼 */}
-      <div className="flex justify-center mt-12 mb-4">
-        <button
-          onClick={handleEditClick}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
-        >
+      {/* 버튼 그룹 */}
+      <div className="flex justify-center gap-4 mt-12 mb-4">
+        <button onClick={handleEditClick} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition">
           수정
         </button>
+        <button onClick={() => setShowDeleteConfirm(true)} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500 transition">
+          삭제
+        </button>
       </div>
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-gray-800 p-6 rounded-lg text-white shadow-lg">
+            <p className="mb-4">정말 이 캐릭터를 삭제하시겠습니까?</p>
+            <div className="flex justify-end gap-4">
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 bg-gray-600 rounded-md">취소</button>
+              <button onClick={handleDeleteCharacter} className="px-4 py-2 bg-red-600 rounded-md">삭제</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 이미지 확대 모달 */}
       {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}

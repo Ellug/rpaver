@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { db, storage } from "@/libs/firebaseConfig";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 
 type Character = {
@@ -37,6 +38,15 @@ type CharacterFormProps = {
 
 export default function CharacterUpdate({ character, isEdit = false }: CharacterFormProps) {
   const router = useRouter();
+  const { id } = useParams();
+  const characterId = Array.isArray(id) ? id[0] : id;
+
+  useEffect(() => {
+    if (isEdit && characterId) {
+      setFormData((prev) => ({ ...prev, id: characterId })); 
+    }
+  }, [characterId, isEdit]);
+
 
   const [formData, setFormData] = useState<Character>({
     id: character?.id || "",
@@ -92,7 +102,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
     setLoading(true);
 
     try {
-      const updatedImages = [...(formData.images || [])];
+      let updatedImages = [...(formData.images || [])];
 
       // 1️⃣ **삭제된 이미지 Firebase Storage에서 제거**
       for (const imageUrl of removedImages) {
@@ -102,20 +112,37 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
 
       // 2️⃣ **새로운 이미지 Firebase Storage에 업로드**
       for (const image of newImages) {
-        const imageRef = ref(storage, `characterGallery/${formData.id || Date.now()}/${image.name}`);
+        const imageRef = ref(storage, `charactersIMG/${formData.id || Date.now()}/${image.name}`);
         await uploadBytes(imageRef, image);
         const imageUrl = await getDownloadURL(imageRef);
         updatedImages.push(imageUrl);
       }
 
-      const updatedCharacterData = { ...formData, images: updatedImages };
+      const basicCharacterData = {
+        birth: formData.birth,
+        name: formData.name,
+        family: formData.family,
+        title: formData.title,
+        gender: formData.gender,
+        unit: formData.unit,
+        party: formData.party,
+        skill: formData.skill,
+        body: formData.body,
+      };
 
-      // 3️⃣ **Firestore 업데이트 or 새로 등록**
       if (isEdit && formData.id) {
-        await updateDoc(doc(db, "character_details", formData.id), updatedCharacterData);
+        // 🔹 **기존 문서 업데이트**
+        await updateDoc(doc(db, "character", formData.id), basicCharacterData);
+        await updateDoc(doc(db, "character_detail", formData.id), { ...formData, images: updatedImages });
       } else {
-        const newDocRef = doc(db, "character_details", `${formData.name}-${formData.family}`);
-        await setDoc(newDocRef, updatedCharacterData);
+        // 🔹 **새로운 문서 생성**
+        const characterRef = await addDoc(collection(db, "character"), basicCharacterData);
+        const newCharacterId = characterRef.id;
+
+        await setDoc(doc(db, "character_detail", newCharacterId), {
+          ...formData,
+          images: updatedImages,
+        });
       }
 
       router.push("/board/character"); // 캐릭터 목록으로 이동
@@ -130,7 +157,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
     <div className="max-w-5xl mx-auto mt-4 p-6 bg-gray-900 text-white rounded-lg shadow-lg">
       {loading && <LoadingModal />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} autoComplete="new-password" className="flex flex-col gap-4">
         {/* 🔹 이미지 목록 미리보기 */}
         <div className="flex flex-wrap gap-2">
           {formData.images?.map((img, index) => (
@@ -178,6 +205,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
             value={formData[field.name as keyof Character]}
             onChange={handleChange}
             className="p-2 bg-gray-700 rounded-md"
+            autoComplete="new-password"
           />
         ))}
 

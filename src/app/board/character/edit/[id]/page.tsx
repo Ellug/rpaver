@@ -47,7 +47,7 @@ export default function EditCharacterPage() {
     const fetchCharacter = async () => {
       setLoading(true);
       try {
-        const docRef = doc(db, "character_details", characterId);
+        const docRef = doc(db, "character_detail", characterId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setCharacter({ id: characterId, ...(docSnap.data() as CharacterDetail) });

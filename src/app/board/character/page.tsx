@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { db } from "@/libs/firebaseConfig";
-import { collection, onSnapshot } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { useCharacterContext } from "@/contexts/CharacterContext";
 import { useRouter } from "next/navigation";
-import LoadingModal from "@/components/LoadingModal"; // 로딩 모달 추가
+import LoadingModal from "@/components/LoadingModal";
 
+// 캐릭터 타입 정의
 type Character = {
-  id: string; // Firestore 문서 ID 추가
+  id: string;
   birth: string;
   name: string;
   family: string;
@@ -45,34 +45,17 @@ const columns: Column[] = [
 
 export default function CharacterPage() {
   const router = useRouter();
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const { characters } = useCharacterContext(); // 🔹 Context에서 데이터 가져오기
   const [sortedCharacters, setSortedCharacters] = useState<Character[]>([]);
-  const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentYear, setCurrentYear] = useState<string>("52");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-    // Firestore 실시간 데이터 감지
-    const unsubscribe = onSnapshot(collection(db, "characters"), (snapshot) => {
-      const updatedCharacters: Character[] = snapshot.docs.map((doc) => {
-        const data = doc.data() as Character;
-        return {
-          ...data,
-          id: data.id || doc.id,
-        };
-      });      
+    sortCharacters(characters, sortOrder);
+  }, [characters, sortOrder]);
 
-      setCharacters(updatedCharacters);
-      sortCharacters(updatedCharacters, sortOrder);
-      setLoading(false);
-    });
-
-    return () => unsubscribe(); // Firestore 리스너 정리
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // 정렬 함수 (Firestore 호출 없이 로컬에서 정렬)
+  // 정렬 함수
   const sortCharacters = (data: Character[], order: "asc" | "desc") => {
     const sortedData = [...data].sort((a, b) =>
       order === "desc"
@@ -131,7 +114,7 @@ export default function CharacterPage() {
 
   return (
     <div className="my-10 md:my-12 p-6">
-      {loading && <LoadingModal />} {/* 로딩 모달 추가 */}
+      {!characters.length && <LoadingModal />} {/* 로딩 모달 추가 */}
 
       {/* 정렬 & 연도 & 검색 UI */}
       <div className="flex flex-col md:flex-row md:w-[90%] max-w-[1920px] mx-auto justify-between items-center gap-4 mb-4 text-sm">
@@ -165,7 +148,7 @@ export default function CharacterPage() {
             onChange={handleSearchChange}
             className="w-60 px-4 py-1 border border-gray-300 rounded-md text-black focus:ring focus:ring-blue-200"
             placeholder="이름, 유닛, 소속 등 검색"
-            autoComplete="false"
+            autoComplete="off"
           />
         </div>
 
@@ -194,7 +177,7 @@ export default function CharacterPage() {
               <tr
                 key={char.id}
                 className="hover:bg-gray-800 hover:text-gold cursor-pointer"
-                onClick={() => handleCharacterClick(char.id)} // 클릭 시 상세 페이지 이동
+                onClick={() => handleCharacterClick(char.id)}
               >
                 {columns.map((col) => (
                   <td key={col.key} className={`border px-4 py-3 ${col.mobile ? "" : "hidden md:table-cell"}`}>

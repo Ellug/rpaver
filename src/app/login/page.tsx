@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FirebaseError } from "firebase/app";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { userData, login } = useAuth();
+  const router = useRouter();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (userData) {
+      router.replace("/");
+    }
+  }, [userData])
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -18,8 +27,10 @@ export default function LoginPage() {
       await login(email, password);
     } catch (error) {
       if (error instanceof FirebaseError) {
+        alert("로그인 실패")
         console.error("로그인 실패:", error.message);
       } else {
+        alert("로그인 실패")
         console.error("알 수 없는 오류 발생:", error);
       }
     }

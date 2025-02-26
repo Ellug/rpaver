@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { userData, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !userData) {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [userData, loading, router]);
 
   if (loading) {
     return (
