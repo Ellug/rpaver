@@ -5,12 +5,13 @@ import { useParams } from "next/navigation";
 import { db } from "@/libs/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import LoadingModal from "@/components/LoadingModal";
-// @ts-ignore
+// @ts-expect-error
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ImageModal from "@/components/ImageModal";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type CharacterDetail = {
   birth: string;
@@ -120,9 +121,10 @@ export default function CharacterDetailPage() {
             <Slider {...sliderSettings}>
               {character.images.map((img, index) => (
                 <div key={index} className="flex justify-center">
-                  <img
+                  <Image
                     src={img}
                     alt={character.name}
+                    layout="intrinsic"
                     className="rounded-lg w-full h-80 object-contain cursor-pointer hover:scale-105 transition-transform"
                     onClick={() => setSelectedImage(img)} // 클릭 시 확대 모달 오픈
                   />

@@ -6,6 +6,7 @@ import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
+import Image from "next/image";
 
 type Character = {
   id?: string;
@@ -92,7 +93,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
     setLoading(true);
 
     try {
-      let updatedImages = [...(formData.images || [])];
+      const updatedImages = [...(formData.images || [])];
 
       // 1️⃣ **삭제된 이미지 Firebase Storage에서 제거**
       for (const imageUrl of removedImages) {
@@ -135,7 +136,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
         <div className="flex flex-wrap gap-2">
           {formData.images?.map((img, index) => (
             <div key={index} className="relative w-24 h-24">
-              <img src={img} alt="업로드된 이미지" className="w-full h-full object-cover rounded-md" />
+              <Image src={img} alt="업로드된 이미지" layout="intrinsic" className="w-full h-full object-cover rounded-md" />
               <button
                 type="button"
                 onClick={() => handleRemoveImage(img)}
