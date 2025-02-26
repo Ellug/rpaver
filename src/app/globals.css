@@ -19,3 +19,13 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.slick-dots li button:before {
+  color: white !important;
+  opacity: 0.9;
+}
+
+.slick-dots li.slick-active button:before {
+  color: gold !important;
+  opacity: 1;
+}
