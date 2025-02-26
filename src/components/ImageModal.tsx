@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import React from "react";
 
 type ImageModalProps = {
@@ -21,10 +20,9 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
         >
           ✕
         </button>
-        <Image
+        <img
           src={imageUrl}
           alt="확대 이미지"
-          layout="intrinsic"
           className="max-w-full max-h-screen object-contain rounded-lg"
         />
       </div>

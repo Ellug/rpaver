@@ -23,7 +23,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8 sm:p-20">
+    <div className="flex flex-col items-center justify-center bg-black text-white p-8 sm:p-20">
       <main className="flex flex-col items-center gap-8 p-10 rounded-lg border border-white/30 shadow-lg shadow-white/10 w-full max-w-md">
         <p className="text-4xl text-white/80 text-center">RPAVER</p>
         <h1 className="text-2xl font-bold text-white">Welcome Spawner</h1>
