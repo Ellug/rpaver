@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { db } from "@/libs/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import LoadingModal from "@/components/LoadingModal";
-// @ts-expect-error
+// @ts-expect-error: TypeScript가 Slider 모듈을 인식하지 못함
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

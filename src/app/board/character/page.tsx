@@ -69,6 +69,7 @@ export default function CharacterPage() {
     });
 
     return () => unsubscribe(); // Firestore 리스너 정리
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 정렬 함수 (Firestore 호출 없이 로컬에서 정렬)

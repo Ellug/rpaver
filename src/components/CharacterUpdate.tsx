@@ -176,7 +176,7 @@ export default function CharacterUpdate({ character, isEdit = false }: Character
             type="text"
             name={field.name}
             placeholder={field.label}
-            value={(formData as any)[field.name]}
+            value={formData[field.name as keyof Character]}
             onChange={handleChange}
             className="p-2 bg-gray-700 rounded-md"
           />
