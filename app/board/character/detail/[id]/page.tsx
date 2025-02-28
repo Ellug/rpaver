@@ -128,7 +128,7 @@ export default function CharacterDetailPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative">
+    <div className="max-w-4xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative overflow-hidden">
       {/* 캐릭터 이미지 슬라이더 */}
       {imageUrls.length > 0 && (
         <div className="relative flex justify-center">

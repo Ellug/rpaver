@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { storage } from "@/libs/firebaseConfig";
-import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { ref, listAll, getDownloadURL, uploadBytes } from "firebase/storage";
 import ImageModal from "@/components/ImageModal"; 
 import { useCharacterContext } from "@/contexts/CharacterContext"; 
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ export default function CharacterGallery() {
   const [gallery, setGallery] = useState<{ folder: string; images: string[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [expandedFolders, setExpandedFolders] = useState<{ [key: string]: boolean }>({});
 
   // 🔹 캐릭터 이미지 가져오기
   useEffect(() => {
@@ -60,8 +61,44 @@ export default function CharacterGallery() {
     }
   };
 
+  // 🔹 "힣힣힣" 폴더만 토글 가능
+  const handleToggle = (folder: string) => {
+    if (folder === "힣힣힣") {
+      setExpandedFolders((prev) => ({
+        ...prev,
+        [folder]: !prev[folder],
+      }));
+    }
+  };
+
+  // 🔹 이미지 업로드 핸들러 (힣힣힣 폴더 전용)
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return;
+    const files = Array.from(event.target.files);
+
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const fileRef = ref(storage, `charactersIMG/힣힣힣/${file.name}`);
+        await uploadBytes(fileRef, file);
+        return getDownloadURL(fileRef);
+      });
+
+      const newUrls = await Promise.all(uploadPromises);
+      setGallery((prevGallery) =>
+        prevGallery.map((folderData) =>
+          folderData.folder === "힣힣힣"
+            ? { ...folderData, images: [...folderData.images, ...newUrls] }
+            : folderData
+        )
+      );
+      event.target.value = "";
+    } catch (error) {
+      console.error("🔥 이미지 업로드 실패:", error);
+    }
+  };
+
   return (
-    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-6xl mx-auto">
+    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">캐릭터 갤러리</h1>
 
       {isLoading ? (
@@ -74,26 +111,46 @@ export default function CharacterGallery() {
             <div key={folder} className="border border-gray-700 p-4 rounded-lg">
               {/* 🔹 캐릭터 이름 클릭 시 상세 페이지 이동 */}
               <h2
-                className="text-2xl font-semibold mb-2 cursor-pointer text-blue-400 hover:text-gold"
-                onClick={() => handleCharacterClick(folder)}
+                className={`text-2xl font-semibold mb-2 cursor-pointer hover:text-gold ${
+                  folder === "힣힣힣" ? "text-blue-400" : "text-gray-300"
+                }`}
+                onClick={() => {
+                  if (folder === "힣힣힣") {
+                    handleToggle(folder);
+                  } else {
+                    handleCharacterClick(folder);
+                  }
+                }}
               >
-                {folder}
+                {folder} {folder === "힣힣힣" && (expandedFolders[folder] ? "저장소 🔽" : "저장소 ▶")}
               </h2>
-              <div className="grid grid-cols-3 gap-4">
-                {images.length > 0 ? (
-                  images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`캐릭터 ${index}`}
-                      className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
-                      onClick={() => setSelectedImage(image)}
-                    />
-                  ))
-                ) : (
-                  <p className="text-gray-400">이미지 없음</p>
-                )}
-              </div>
+
+              {folder === "힣힣힣" && (
+                <div className="my-4">
+                  <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
+                    이미지 업로드
+                    <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" />
+                  </label>
+                </div>
+              )}
+
+              {(folder !== "힣힣힣" || expandedFolders[folder]) && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {images.length > 0 ? (
+                    images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`캐릭터 ${index}`}
+                        className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
+                        onClick={() => setSelectedImage(image)}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-gray-400">이미지 없음</p>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

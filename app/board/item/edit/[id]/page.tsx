@@ -21,9 +21,7 @@ type Item = {
 
 export default function EditItemPage() {
   const router = useRouter();
-  const params = useParams();
-  const id = params.id as string;
-
+  const { id } = useParams();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -34,7 +32,7 @@ export default function EditItemPage() {
 
     const fetchItem = async () => {
       try {
-        const docRef = doc(db, "items", id);
+        const docRef = doc(db, "items", id as string);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -75,11 +73,7 @@ export default function EditItemPage() {
         return;
       }
 
-      const urls = await Promise.all(
-        result.items.map(async (item) => await getDownloadURL(item))
-      );
-
-      console.log(`✅ 불러온 이미지 (${name}):`, urls);
+      const urls = await Promise.all(result.items.map(async (item) => await getDownloadURL(item)));
       setImageUrls(urls);
     } catch (error) {
       console.error(`🔥 Storage 이미지 가져오기 실패 (${name}):`, error);
@@ -98,7 +92,7 @@ export default function EditItemPage() {
     if (!item) return;
 
     try {
-      const docRef = doc(db, "items", id);
+      const docRef = doc(db, "items", id as string);
       await updateDoc(docRef, {
         category: item.category,
         name: item.name,
@@ -116,7 +110,9 @@ export default function EditItemPage() {
   // 🔹 이미지 삭제 함수
   const handleDeleteImage = async (imageUrl: string) => {
     try {
-      const fileRef = ref(storage, imageUrl.split(storage.app.options.storageBucket!)[1]);
+      const urlPath = new URL(imageUrl).pathname.split("/o/")[1].split("?")[0];
+      const decodedPath = decodeURIComponent(urlPath);
+      const fileRef = ref(storage, decodedPath);
 
       await deleteObject(fileRef);
       alert("이미지가 삭제되었습니다.");
@@ -183,15 +179,33 @@ export default function EditItemPage() {
       </div>
 
       {/* 🔹 아이템 수정 입력 폼 */}
-      <div className="text-gray-300">
-        <label className="block font-medium">카테고리</label>
-        <input type="text" name="category" value={item.category} onChange={handleChange} className="w-full border px-3 py-2 rounded-md text-black" />
+      <div className="text-gray-300 space-y-4">
+        {[
+          { label: "카테고리", name: "category", type: "text", placeholder: "카테고리 입력" },
+          { label: "이름", name: "name", type: "text", placeholder: "이름 입력" },
+        ].map(({ label, name, type, placeholder }) => (
+          <div key={name}>
+            <label className="block font-medium">{label}</label>
+            <input
+              type={type}
+              name={name}
+              value={item[name as keyof Item]}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md text-black"
+              placeholder={placeholder}
+            />
+          </div>
+        ))}
 
-        <label className="block font-medium mt-4">이름</label>
-        <input type="text" name="name" value={item.name} onChange={handleChange} className="w-full border px-3 py-2 rounded-md text-black" />
-
-        <label className="block font-medium mt-4">설명</label>
-        <textarea name="detail" value={item.detail} onChange={handleChange} className="w-full border px-3 py-2 rounded-md h-24 resize-none text-black"></textarea>
+        <div>
+          <label className="block font-medium">설명</label>
+          <textarea
+            name="detail"
+            value={item.detail}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded-md h-24 resize-none text-black"
+          />
+        </div>
       </div>
 
       {/* 🔹 이미지 업로드 */}

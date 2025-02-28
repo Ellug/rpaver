@@ -97,7 +97,7 @@ export default function Navbar() {
           >
             <span className="text-sm text-gray-300">{userData?.name || "-"}</span>
             <img
-              src={userData?.picture || "/default-profile.png"}
+              src={userData?.picture || "https://firebasestorage.googleapis.com/v0/b/rp-encyclopedia.appspot.com/o/profilePictures%2FYDW4AGtVZNNxOYznMc2m0DFoxlF2?alt=media&token=248ffc43-c07a-4e88-98e6-713c8394bb33"}
               alt="프로필"
               className="rounded-full w-10 border border-white/20 aspect-square object-cover"
             />

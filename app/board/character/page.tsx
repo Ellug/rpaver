@@ -54,44 +54,49 @@ export default function CharacterPage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState<SortKey | "birth">("birth");
 
-  const extractBodyValues = (body: string) => {
-    if (!body) return { height: 0, weight: 0, chest: "A" }; // 기본값 설정
-  
-    const heightMatch = body.match(/(\d+)\s?cm/);
-    const weightMatch = body.match(/(\d+)\s?kg/);
-    const chestMatch = body.match(/\b([A-Z])\b/);
-  
-    return {
-      height: heightMatch ? parseInt(heightMatch[1], 10) : 0,
-      weight: weightMatch ? parseInt(weightMatch[1], 10) : 0,
-      chest: chestMatch ? chestMatch[1] : "A",
-    };
-  };
-  
-
   useEffect(() => {
     sortCharacters(characters, sortKey, sortOrder);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [characters, sortKey, sortOrder]);
 
-  // 정렬 함수
+  const extractBodyValues = (body: string) => {
+    if (!body) return { height: 0, weight: 0, chest: null }; // 기본값을 null로 설정
+  
+    const heightMatch = body.match(/(\d+)\s?cm/);
+    const weightMatch = body.match(/(\d+)\s?kg/);
+    const chestMatch = body.match(/\b([A-Z])\b/); // 대문자 한 글자 추출
+  
+    return {
+      height: heightMatch ? parseInt(heightMatch[1], 10) : 0,
+      weight: weightMatch ? parseInt(weightMatch[1], 10) : 0,
+      chest: chestMatch ? chestMatch[1] : null, // 가슴 값이 없으면 null 반환
+    };
+  };
+  
   const sortCharacters = (data: Character[], key: SortKey, order: "asc" | "desc") => {
     const sortedData = [...data].sort((a, b) => {
       const aValues = extractBodyValues(a.body);
       const bValues = extractBodyValues(b.body);
   
-      const aValue: number | string = key === "birth" ? parseInt(a.birth || "0", 10) : aValues[key];
-      const bValue: number | string = key === "birth" ? parseInt(b.birth || "0", 10) : bValues[key];
+      const aValue: number | string | null = key === "birth" ? parseInt(a.birth || "0", 10) : aValues[key];
+      const bValue: number | string | null = key === "birth" ? parseInt(b.birth || "0", 10) : bValues[key];
   
-      if (key === "chest" && typeof aValue === "string" && typeof bValue === "string") {
-        return order === "desc" ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+      // 가슴 크기 정렬 (없는 값은 맨 뒤로)
+      if (key === "chest") {
+        const aStr = aValue ? String(aValue) : ""; // 숫자가 들어가도 문자열로 변환
+        const bStr = bValue ? String(bValue) : "";
+  
+        if (!aStr) return 1; // aStr이 빈 값이면 bStr보다 뒤로 이동
+        if (!bStr) return -1; // bStr이 빈 값이면 aStr이 앞으로 이동
+  
+        return order === "desc" ? bStr.localeCompare(aStr) : aStr.localeCompare(bStr);
       }
   
       return order === "desc" ? (bValue as number) - (aValue as number) : (aValue as number) - (bValue as number);
     });
   
     setSortedCharacters(sortedData);
-  };
+  };  
   
   const toggleSortOrder = (key: SortKey) => {
     const newOrder = sortKey === key && sortOrder === "desc" ? "asc" : "desc";
@@ -148,7 +153,7 @@ export default function CharacterPage() {
       {/* 정렬 & 연도 & 검색 UI */}
       <div className="flex flex-col md:flex-row md:w-[90%] max-w-[1920px] mx-auto justify-between items-center gap-4 mb-4 text-sm">
         <div className="flex flex-row gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <label htmlFor="yearInput" className="text-gray-200 font-medium">연도:</label>
             <input
               id="yearInput"
@@ -159,22 +164,8 @@ export default function CharacterPage() {
               placeholder="연도 입력"
             />
           </div>
-
-          <button onClick={() => toggleSortOrder("birth")} className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-700 transition">
-            연도 {sortKey === "birth" && (sortOrder === "desc" ? "↓" : "↑")}
-          </button>
-          <button onClick={() => toggleSortOrder("height")} className="px-4 py-2 bg-purple-900 text-white rounded-md hover:bg-purple-700 transition">
-            키 {sortKey === "height" && (sortOrder === "desc" ? "↓" : "↑")}
-          </button>
-          <button onClick={() => toggleSortOrder("weight")} className="px-4 py-2 bg-red-900 text-white rounded-md hover:bg-red-700 transition">
-            체중 {sortKey === "weight" && (sortOrder === "desc" ? "↓" : "↑")}
-          </button>
-          <button onClick={() => toggleSortOrder("chest")} className="px-4 py-2 bg-yellow-900 text-white rounded-md hover:bg-yellow-700 transition">
-            가슴 {sortKey === "chest" && (sortOrder === "desc" ? "↓" : "↑")}
-          </button>
-
         </div>
-
+        
         <div className="flex items-center gap-2">
           <label htmlFor="searchInput" className="text-gray-200 font-medium">검색:</label>
           <input
@@ -186,6 +177,18 @@ export default function CharacterPage() {
             placeholder="이름, 유닛, 소속 등 검색"
             autoComplete="off"
           />
+        </div>
+
+        <div className="flex gap-2">
+          <button onClick={() => toggleSortOrder("height")} className="px-4 py-2 bg-purple-900 text-white rounded-md hover:bg-purple-700 transition">
+            키 {sortKey === "height" && (sortOrder === "desc" ? "↓" : "↑")}
+          </button>
+          <button onClick={() => toggleSortOrder("weight")} className="px-4 py-2 bg-red-900 text-white rounded-md hover:bg-red-700 transition">
+            체중 {sortKey === "weight" && (sortOrder === "desc" ? "↓" : "↑")}
+          </button>
+          <button onClick={() => toggleSortOrder("chest")} className="px-4 py-2 bg-yellow-900 text-white rounded-md hover:bg-yellow-700 transition">
+            가슴 {sortKey === "chest" && (sortOrder === "desc" ? "↓" : "↑")}
+          </button>
         </div>
 
         {/* 등록 버튼 (테이블 우측 상단) */}
@@ -202,12 +205,22 @@ export default function CharacterPage() {
           <thead>
             <tr className="bg-gray-700 text-left">
               {columns.map((col) => (
-                <th key={col.key} className={`border px-4 py-3 ${col.mobile ? "" : "hidden md:table-cell"}`}>
+                <th
+                  key={col.key}
+                  className={`border px-4 py-3 ${col.mobile ? "" : "hidden md:table-cell"} ${
+                    col.key === "birth" ? "cursor-pointer hover:bg-gray-600" : ""
+                  }`}
+                  onClick={col.key === "birth" ? () => toggleSortOrder("birth") : undefined}
+                >
                   {col.label}
+                  {col.key === "birth" && (
+                    <span className="ml-1">{sortKey === "birth" ? (sortOrder === "desc" ? "↓" : "↑") : ""}</span>
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
+
           <tbody>
             {filteredCharacters.map((char) => (
               <tr

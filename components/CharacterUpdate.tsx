@@ -7,6 +7,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebas
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
+import ImageLoader from "@/components/ImageLoader";
 
 type Character = {
   id?: string;
@@ -34,9 +35,9 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
   const router = useRouter();
   const { id } = useParams();
   const characterId = Array.isArray(id) ? id[0] : id;
+  const [showImageLoader, setShowImageLoader] = useState(false);
 
   const [formData, setFormData] = useState<Character>({
-    id: character?.id || "",
     name: character?.name || "",
     family: character?.family || "",
     birth: character?.birth || "",
@@ -104,16 +105,16 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
         body: formData.body,
       };
 
-      if (isEdit && formData.id) {
-        await updateDoc(doc(db, "character", formData.id), basicCharacterData);
-        await updateDoc(doc(db, "character_detail", formData.id), { ...formData });
+      if (isEdit && characterId) {
+        await updateDoc(doc(db, "character", characterId), basicCharacterData);
+        await updateDoc(doc(db, "character_detail", characterId), { ...formData });
       } else {
         const characterRef = await addDoc(collection(db, "character"), basicCharacterData);
         const newCharacterId = characterRef.id;
         await setDoc(doc(db, "character_detail", newCharacterId), { ...formData });
       }
 
-      router.push("/board/character");
+      router.back();
     } catch (error) {
       console.error("🔥 저장 중 오류 발생:", error);
     } finally {
@@ -185,7 +186,19 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
         </div>
 
         {/* 🔹 파일 업로드 */}
-        <input type="file" multiple accept="image/*" onChange={handleImageUpload} />
+        <div className="flex gap-4 mt-4 justify-center">
+          <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
+            이미지 업로드
+            <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowImageLoader(true)}
+            className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
+          >
+            갤러리에서 불러오기
+          </button>
+        </div>
 
         {/* 🔹 입력 필드 */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,6 +242,9 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
         <button type="submit" className="p-2 bg-blue-600 rounded-md hover:bg-blue-500">
           {isEdit ? "수정하기" : "등록하기"}
         </button>
+
+        {/* 🔹 ImageLoader 컴포넌트 렌더링 */}
+        {showImageLoader && <ImageLoader character={formData} onClose={() => setShowImageLoader(false)} />}
       </form>
     </div>
   );
