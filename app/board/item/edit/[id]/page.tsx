@@ -203,7 +203,7 @@ export default function EditItemPage() {
             name="detail"
             value={item.detail}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded-md h-24 resize-none text-black"
+            className="w-full border px-3 py-2 rounded-md h-80 resize-none text-black"
           />
         </div>
       </div>

@@ -127,6 +127,24 @@ export default function CharacterDetailPage() {
     router.push(`/board/character/edit/${encodeURIComponent(decodedId)}`);
   };
 
+  // 🔹 **강조 텍스트 및 절취선 처리**
+  const formatDetailText = (text: string) => {
+    return (
+      <div className="whitespace-pre-wrap">
+        {text
+          .replace(/\*\*(.*?)\*\*/g, '<span class="text-white text-xl font-bold">$1</span>') // **굵은 텍스트 변환**
+          .split("---")
+          .map((segment, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && <hr className="border-gray-500 my-2" />} {/* 절취선 삽입 */}
+              <div dangerouslySetInnerHTML={{ __html: segment }} />
+            </React.Fragment>
+          ))}
+      </div>
+    );
+  };
+  
+
   return (
     <div className="max-w-4xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative overflow-hidden">
       {/* 캐릭터 이미지 슬라이더 */}
@@ -162,10 +180,10 @@ export default function CharacterDetailPage() {
           { label: "이름", value: character.name },
           { label: "성(가문)", value: character.family },
           { label: "출생", value: character.birth },
+          { label: "출신", value: character.country },
           { label: "성별", value: character.gender },
           { label: "칭호", value: character.title },
           { label: "성향", value: character.personality },
-          { label: "출신", value: character.country },
           { label: "소속", value: character.party },
           { label: "신체", value: character.body },
           { label: "유닛", value: character.unit },
@@ -184,9 +202,9 @@ export default function CharacterDetailPage() {
       </div>
 
       {/* 상세 설명 */}
-      <div className="mt-10">
-        <h2 className="text-xl font-semibold text-gold">상세 설명</h2>
-        <p className="mt-2 text-gray-300 whitespace-pre-line">{character.detail || "설명 없음"}</p>
+      <div className="mt-16">
+        <h2 className="text-2xl font-semibold text-gold">상세 설명</h2>
+        <div className="mt-2 text-gray-300 leading-loose">{formatDetailText(character.detail || "설명 없음")}</div>
       </div>
 
       {/* 버튼 그룹 */}

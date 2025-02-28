@@ -209,17 +209,17 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
             { label: "출신", name: "country" },
             { label: "성별", name: "gender" },
             { label: "칭호", name: "title" },
-            { label: "성격", name: "personality" },
+            { label: "성향", name: "personality" },
+            { label: "소속", name: "party" },
             { label: "신체", name: "body" },
             { label: "유닛", name: "unit" },
             { label: "무기", name: "weapon" },
+            { label: "능력", name: "skill" },
             { label: "특기", name: "talent" },
             { label: "취미", name: "hobby" },
-            { label: "능력", name: "skill" },
             { label: "성우", name: "voice" },
             { label: "시리즈", name: "series" },
             { label: "가족 관계", name: "familyRelation" },
-            { label: "소속", name: "party" },
           ].map((field) => (
             <div key={field.name} className="flex items-center gap-4">
               <label htmlFor={field.name} className="w-20 text-gray-300 font-medium">
@@ -237,7 +237,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           ))}
         </div>
 
-        <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} className="p-2 bg-gray-700 rounded-md h-40" />
+        <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} className="p-2 bg-gray-700 rounded-md h-80" />
 
         <button type="submit" className="p-2 bg-blue-600 rounded-md hover:bg-blue-500">
           {isEdit ? "수정하기" : "등록하기"}

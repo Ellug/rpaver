@@ -76,6 +76,7 @@ export default function CharacterGallery() {
     if (!event.target.files) return;
     const files = Array.from(event.target.files);
 
+    setIsLoading(true);
     try {
       const uploadPromises = files.map(async (file) => {
         const fileRef = ref(storage, `charactersIMG/힣힣힣/${file.name}`);
@@ -95,6 +96,7 @@ export default function CharacterGallery() {
     } catch (error) {
       console.error("🔥 이미지 업로드 실패:", error);
     }
+    setIsLoading(false)
   };
 
   return (

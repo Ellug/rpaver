@@ -72,6 +72,23 @@ export default function ItemDetailPage() {
     picture: "/default-profile.png",
   };
 
+  // 🔹 상세 설명 텍스트 포맷팅 함수
+  const formatDetailText = (text: string) => {
+    return (
+      <div className="whitespace-pre-wrap">
+        {text
+          .replace(/\*\*(.*?)\*\*/g, '<span class="text-white text-xl font-bold">$1</span>') // **굵은 텍스트 변환**
+          .split("---")
+          .map((segment, index) => (
+            <React.Fragment key={index}>
+              {index > 0 && <hr className="border-gray-500 my-2" />} {/* 절취선 삽입 */}
+              <div dangerouslySetInnerHTML={{ __html: segment }} />
+            </React.Fragment>
+          ))}
+      </div>
+    );
+  };
+
   // 🔹 아이템 삭제 함수
   const handleDelete = async () => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
@@ -139,10 +156,9 @@ export default function ItemDetailPage() {
       </div>
 
       {/* 🔹 상세 정보 */}
-      <div className="mt-6 text-md text-gray-300">
-        <p>{item.detail}</p>
-        <p className="mt-2 text-gray-400">등록일: {new Date(item.created).toLocaleDateString("ko-KR")}</p>
-      </div>
+      <div className="mt-6 text-md text-gray-300 leading-loose">{formatDetailText(item.detail)}</div>
+
+      <p className="mt-4 text-gray-400">등록일: {new Date(item.created).toLocaleDateString("ko-KR")}</p>
 
       {/* 🔹 버튼 그룹 */}
       <div className="flex justify-center gap-4 mt-12 mb-4">
