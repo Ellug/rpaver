@@ -13,6 +13,7 @@ interface UserData {
   name: string;
   picture?: string;
   created: any;
+  admin: boolean;
 }
 
 interface AuthContextType {
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           name: user.email?.split("@")[0] || "New User", // 기본 이름: 이메일 앞부분
           picture: "",
           created: serverTimestamp(), // Firebase Timestamp (한국 시간 기준)
+          admin: false
         };
 
         await setDoc(userRef, newUserData);
