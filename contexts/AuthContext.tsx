@@ -2,11 +2,7 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 import { auth, db } from "@/libs/firebaseConfig";
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  User,
-} from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, User } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
@@ -34,6 +30,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !userData) {
+      router.push("/login");
+    }
+  }, [userData, loading, router]);
 
   useEffect(() => {
     // 🔹 브라우저 세션에서 데이터 불러오기 (새로고침 시 유지)

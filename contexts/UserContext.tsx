@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/libs/firebaseConfig";
 
 // 🔹 유저 데이터 타입 정의
@@ -21,24 +21,20 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [users, setUsers] = useState<Record<string, User>>({}); // 🔹 객체 형태로 초기화
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const userList: Record<string, User> = {};
+    const usersCollection = collection(db, "users");
 
-        querySnapshot.forEach((doc) => {
-          userList[doc.id] = {
-            ...(doc.data() as User),
-          };
-        });
+    // 🔹 Firestore 실시간 구독 (onSnapshot 사용)
+    const unsubscribe = onSnapshot(usersCollection, (snapshot) => {
+      const userList: Record<string, User> = {};
+      snapshot.forEach((doc) => {
+        userList[doc.id] = { ...(doc.data() as User) };
+      });
 
-        setUsers(userList);
-      } catch (error) {
-        console.error("🔥 사용자 목록 불러오기 실패:", error);
-      }
-    };
+      setUsers(userList);
+    });
 
-    fetchUsers();
+    // 🔹 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe();
   }, []);
 
   return <UserContext.Provider value={{ users }}>{children}</UserContext.Provider>;

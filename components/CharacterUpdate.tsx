@@ -105,7 +105,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
         body: formData.body,
       };
 
-      if (isEdit && characterId) {
+      if (isEdit === true && characterId) {
         await updateDoc(doc(db, "character", characterId), basicCharacterData);
         await updateDoc(doc(db, "character_detail", characterId), { ...formData });
       } else {
@@ -186,19 +186,21 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
         </div>
 
         {/* 🔹 파일 업로드 */}
-        <div className="flex gap-4 mt-4 justify-center">
-          <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
-            이미지 업로드
-            <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
-          </label>
-          <button
-            type="button"
-            onClick={() => setShowImageLoader(true)}
-            className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
-          >
-            갤러리에서 불러오기
-          </button>
-        </div>
+        {isEdit === true &&
+          <div className="flex gap-4 mt-4 justify-center">
+            <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
+              이미지 업로드
+              <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowImageLoader(true)}
+              className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
+            >
+              갤러리에서 불러오기
+            </button>
+          </div>
+        }
 
         {/* 🔹 입력 필드 */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
