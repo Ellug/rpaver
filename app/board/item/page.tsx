@@ -111,11 +111,11 @@ export default function ItemBoard() {
 
   // 🔹 테이블 컬럼 정의
   const columns = [
-    { label: "카테고리", field: "category" },
-    { label: "이름", field: "name" },
-    { label: "설명", field: "detail" },
-    { label: "작성자", field: "author" },
-    { label: "등록일", field: "created" },
+    { label: "카테고리", field: "category", noMobile: undefined },
+    { label: "이름", field: "name", noMobile: undefined },
+    { label: "설명", field: "detail", noMobile: true },
+    { label: "작성자", field: "author", noMobile: true },
+    { label: "등록일", field: "created", noMobile: true },
   ] as const;
 
   return (
@@ -170,7 +170,7 @@ export default function ItemBoard() {
               {columns.map((col) => (
                 <th
                   key={col.field}
-                  className="border px-4 py-2 cursor-pointer hover:text-gold"
+                  className={`border px-4 py-2 cursor-pointer hover:text-gold ${col.noMobile ? "max-md:hidden" : ""}`}
                   onClick={() => toggleSort(col.field)}
                 >
                   {col.label} {sortColumn === col.field ? (sortOrder === "desc" ? "↓" : "↑") : ""}
@@ -183,10 +183,10 @@ export default function ItemBoard() {
               const user = users[item.author]; // 🔹 작성자 정보 가져오기
               return (
                 <tr key={item.id} onClick={() => handleRowClick(item.id)} className="hover:bg-gray-800 cursor-pointer">
-                  <td className="border px-4 py-2">{item.category}</td>
+                  <td className="border px-4 py-2 text-center">{item.category}</td>
                   <td className="border px-4 py-2">{item.name}</td>
-                  <td className="border px-4 py-2">{truncateText(item.detail, 30)}</td>
-                  <td className="border px-4 py-2 flex items-center gap-2">
+                  <td className="border px-4 py-2 max-md:hidden">{truncateText(item.detail, 30)}</td>
+                  <td className="border px-4 py-2 flex items-center gap-2 max-md:hidden">
                     {user ? (
                       <>
                         <img src={user.picture} alt={user.name} className="w-6 h-6 rounded-full" />
@@ -196,7 +196,7 @@ export default function ItemBoard() {
                       <p>알 수 없는 사용자</p>
                     )}
                   </td>
-                  <td className="border px-4 py-2">{new Date(item.created).toLocaleDateString("ko-KR")}</td>
+                  <td className="border px-4 py-2 text-right max-md:hidden">{new Date(item.created).toLocaleDateString("ko-KR")}</td>
                 </tr>
               );
             })}

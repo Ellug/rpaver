@@ -54,7 +54,7 @@ export default function Search({ setHoveredCategory }: { setHoveredCategory: (ca
 
   return (
     <div
-      className="relative flex items-center border border-gray-300 bg-white rounded-full shadow-md px-4 py-2 text-black z-50"
+      className="relative flex items-center border border-gray-300 bg-white rounded-full shadow-md px-4 py-2 text-black w-full md:w-[600px] z-50"
       onMouseEnter={() => setHoveredCategory("검색")}
       onMouseLeave={() => setHoveredCategory(null)}
     >

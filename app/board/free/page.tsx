@@ -102,10 +102,10 @@ export default function FreeBoard() {
   const tableHeaders = [
     { key: "title", label: "제목", className: "w-auto text-left" },
     { key: "author", label: "작성자", className: "w-36 text-left" },
-    { key: "views", label: "조회수", className: "w-20 text-center" },
-    { key: "likes", label: "좋아요", className: "w-20 text-center" },
-    { key: "comments", label: "댓글", className: "w-20 text-center" },
-    { key: "createdAt", label: "등록일", className: "w-32 text-center" },
+    { key: "views", label: "조회수", className: "w-20 text-center max-md:hidden" },
+    { key: "likes", label: "좋아요", className: "w-20 text-center max-md:hidden" },
+    { key: "comments", label: "댓글", className: "w-20 text-center max-md:hidden" },
+    { key: "createdAt", label: "등록일", className: "w-32 text-center max-md:hidden" },
   ];
 
   return (
@@ -151,10 +151,10 @@ export default function FreeBoard() {
                   ),
                   className: "text-left",
                 },
-                { key: "views", value: post.views, className: "text-center" },
-                { key: "likes", value: post.likes, className: "text-center" }, // 🔥 배열 길이로 변환된 값
-                { key: "comments", value: post.comments, className: "text-center" }, // 🔥 배열 길이로 변환된 값
-                { key: "createdAt", value: new Date(post.createdAt).toLocaleDateString("ko-KR"), className: "text-center text-gray-400" },
+                { key: "views", value: post.views, className: "text-center max-md:hidden" },
+                { key: "likes", value: post.likes, className: "text-center max-md:hidden" }, // 🔥 배열 길이로 변환된 값
+                { key: "comments", value: post.comments, className: "text-center max-md:hidden" }, // 🔥 배열 길이로 변환된 값
+                { key: "createdAt", value: new Date(post.createdAt).toLocaleDateString("ko-KR"), className: "text-center text-gray-400 max-md:hidden" },
               ];
 
               return (

@@ -83,44 +83,44 @@ export default function GalleryStock() {
     <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-7xl mx-auto">
       {isLoading && <LoadingModal />}
 
+      <h1 className="text-2xl font-bold mb-4">갤러리 저장소</h1>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">갤러리 저장소</h1>
 
         {/* 🔹 폴더 선택 및 업로드 */}
-        <div className="flex items-center space-x-4">
+        <div className="ml-auto flex flex-col md:flex-row gap-4 items-center space-x-4">
 
-          <input
-            type="text"
-            placeholder="새 폴더 이름"
-            value={newFolder}
-            onChange={(e) => setNewFolder(e.target.value)}
-            className="bg-gray-800 text-white px-3 py-2 rounded-md"
-          />
-          <button onClick={handleAddFolder} className="bg-green-600 px-3 py-2 rounded-md hover:bg-green-500">
-            + 추가
-          </button>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="새 폴더 이름"
+              value={newFolder}
+              onChange={(e) => setNewFolder(e.target.value)}
+              className="bg-gray-800 text-white px-3 py-2 rounded-md"
+            />
+            <button onClick={handleAddFolder} className="bg-green-600 px-3 py-2 rounded-md hover:bg-green-500">
+              + 추가
+            </button>
+          </div>
 
-          {/* 🔹 폴더 선택 드롭다운 */}
-          <select
-            value={selectedFolder}
-            onChange={(e) => setSelectedFolder(e.target.value)}
-            className="bg-gray-800 text-white px-3 py-2 rounded-md"
-          >
-            <option value="">📂 폴더 선택</option>
-            {gallery.map(({ folder }) => (
-              <option key={folder} value={folder}>
-                {folder}
-              </option>
-            ))}
-          </select>
-
-          {/* 🔹 새 폴더 추가 입력 필드 */}
-
-          {/* 🔹 파일 업로드 */}
-          <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
-            업로드
-            <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" />
-          </label>
+          {/* 🔹 폴더 선택 업로드 */}
+          <div className="flex gap-2">
+            <select
+              value={selectedFolder}
+              onChange={(e) => setSelectedFolder(e.target.value)}
+              className="bg-gray-800 text-white px-3 py-2 rounded-md"
+            >
+              <option value="">📂 폴더 선택</option>
+              {gallery.map(({ folder }) => (
+                <option key={folder} value={folder}>
+                  {folder}
+                </option>
+              ))}
+            </select>
+            <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
+              업로드
+              <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" />
+            </label>
+          </div>
         </div>
       </div>
 
