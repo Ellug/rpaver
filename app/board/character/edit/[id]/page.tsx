@@ -66,5 +66,5 @@ export default function EditCharacterPage() {
   if (loading) return <LoadingModal />;
   if (!character) return <div className="text-center text-gray-400 mt-10">캐릭터 정보를 찾을 수 없습니다.</div>;
 
-  return <CharacterUpdate character={character} isEdit />;
+  return <CharacterUpdate character={character} isEdit={true} />;
 }

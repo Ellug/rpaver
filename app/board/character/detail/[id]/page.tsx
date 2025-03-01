@@ -2,15 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { db, storage } from "@/libs/firebaseConfig";
+import { db } from "@/libs/firebaseConfig";
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
-import { ref, getDownloadURL, listAll } from "firebase/storage";
 import LoadingModal from "@/components/LoadingModal";
 // @ts-expect-error: TypeScript가 Slider 모듈을 인식하지 못함
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ImageModal from "@/components/ImageModal";
+import { fetchImagesFromStorage } from "@/utils/Storage";
 
 type CharacterDetail = {
   birth: string;
@@ -60,7 +60,10 @@ export default function CharacterDetailPage() {
           setCharacter(charData);
           
           // 🔹 Storage에서 이미지 불러오기
-          await fetchCharacterImages(charData.name, charData.family);
+          const folderName = charData.family ? `${charData.name} ${charData.family}` : charData.name;
+          const urls = await fetchImagesFromStorage(`charactersIMG/${folderName}/`);
+          
+          setImageUrls(urls);
         } else {
           console.error("🔥 해당 캐릭터를 찾을 수 없습니다.");
         }
@@ -73,31 +76,6 @@ export default function CharacterDetailPage() {
 
     fetchCharacter();
   }, [decodedId]);
-
-  // 🔹 Storage에서 해당 캐릭터 폴더 내 이미지 가져오기
-  const fetchCharacterImages = async (name: string, family: string) => {
-    const folderName = family ? `${name} ${family}` : name;
-    const folderRef = ref(storage, `charactersIMG/${folderName}/`);
-  
-    try {
-      const result = await listAll(folderRef);
-  
-      if (result.items.length === 0) {
-        console.warn(`⚠️ 이미지 없음: charactersIMG/${folderName}/`);
-        return;
-      }
-  
-      const urls = await Promise.all(
-        result.items.map(async (item) => await getDownloadURL(item))
-      );
-  
-      console.log(`✅ 불러온 이미지 (${folderName}):`, urls);
-      setImageUrls(urls);
-    } catch (error) {
-      console.error(`🔥 Storage 이미지 가져오기 실패 (${folderName}):`, error);
-    }
-  };
-  
 
   if (loading) return <LoadingModal />;
   if (!character) return <div className="text-center text-gray-400 mt-10">캐릭터 정보를 찾을 수 없습니다.</div>;

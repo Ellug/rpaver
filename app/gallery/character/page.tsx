@@ -1,48 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { storage } from "@/libs/firebaseConfig";
-import { ref, listAll, getDownloadURL, uploadBytes } from "firebase/storage";
-import ImageModal from "@/components/ImageModal"; 
-import { useCharacterContext } from "@/contexts/CharacterContext"; 
+import React, { useState, useEffect, useRef } from "react";
+import ImageModal from "@/components/ImageModal";
+import { useCharacterContext } from "@/contexts/CharacterContext";
 import { useRouter } from "next/navigation";
+import LoadingModal from "@/components/LoadingModal";
+import { fetchGalleryFromStorage } from "@/utils/Storage";
 
 export default function CharacterGallery() {
   const router = useRouter();
-  const { characters } = useCharacterContext(); // 🔹 Firestore에서 불러온 캐릭터 정보
+  const { characters } = useCharacterContext();
   const [gallery, setGallery] = useState<{ folder: string; images: string[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [expandedFolders, setExpandedFolders] = useState<{ [key: string]: boolean }>({});
+  const [showCharacterList, setShowCharacterList] = useState(false);
+  const fabRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // 🔹 캐릭터 이미지 가져오기
   useEffect(() => {
     const fetchGallery = async () => {
       setIsLoading(true);
-      try {
-        const storageRef = ref(storage, "charactersIMG/");
-        const folderList = await listAll(storageRef);
-
-        const galleryData = await Promise.all(
-          folderList.prefixes.map(async (folderRef) => {
-            const folderName = folderRef.name;
-            const imageList = await listAll(folderRef);
-
-            // 🔹 각 폴더 안의 이미지 URL 가져오기
-            const images = await Promise.all(
-              imageList.items.map(async (imageRef) => await getDownloadURL(imageRef))
-            );
-
-            return { folder: folderName, images };
-          })
-        );
-
-        setGallery(galleryData);
-      } catch (error) {
-        console.error("🔥 갤러리 가져오기 오류:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      const data = await fetchGalleryFromStorage("charactersIMG/");
+      setGallery(data);
+      setIsLoading(false);
     };
 
     fetchGallery();
@@ -51,7 +32,7 @@ export default function CharacterGallery() {
   // 🔹 클릭 시 해당 캐릭터의 ID를 찾아서 상세 페이지로 이동
   const handleCharacterClick = (folderName: string) => {
     const matchedCharacter = characters.find(
-      (char) => char.family ? `${char.name} ${char.family}` === folderName : char.name === folderName
+      (char) => (char.family ? `${char.name} ${char.family}` : char.name) === folderName
     );
 
     if (matchedCharacter) {
@@ -61,101 +42,89 @@ export default function CharacterGallery() {
     }
   };
 
-  // 🔹 "힣힣힣" 폴더만 토글 가능
-  const handleToggle = (folder: string) => {
-    if (folder === "힣힣힣") {
-      setExpandedFolders((prev) => ({
-        ...prev,
-        [folder]: !prev[folder],
-      }));
+  // 🔹 특정 캐릭터 섹션으로 스크롤 이동
+  const scrollToCharacter = (folderName: string) => {
+    if (sectionRefs.current[folderName]) {
+      sectionRefs.current[folderName]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setShowCharacterList(false); // 목록 닫기
     }
-  };
-
-  // 🔹 이미지 업로드 핸들러 (힣힣힣 폴더 전용)
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) return;
-    const files = Array.from(event.target.files);
-
-    setIsLoading(true);
-    try {
-      const uploadPromises = files.map(async (file) => {
-        const fileRef = ref(storage, `charactersIMG/힣힣힣/${file.name}`);
-        await uploadBytes(fileRef, file);
-        return getDownloadURL(fileRef);
-      });
-
-      const newUrls = await Promise.all(uploadPromises);
-      setGallery((prevGallery) =>
-        prevGallery.map((folderData) =>
-          folderData.folder === "힣힣힣"
-            ? { ...folderData, images: [...folderData.images, ...newUrls] }
-            : folderData
-        )
-      );
-      event.target.value = "";
-    } catch (error) {
-      console.error("🔥 이미지 업로드 실패:", error);
-    }
-    setIsLoading(false)
   };
 
   return (
-    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-7xl mx-auto">
-      <div className="flex justify-between">
-        <h1 className="text-2xl font-bold mb-4">캐릭터 갤러리</h1>
-        <div>
-          <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
-            저장소에 업로드
-            <input type="file" multiple accept="image/*" onChange={handleUpload} className="hidden" />
-          </label>
-        </div>
-      </div>
+    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-7xl mx-auto relative">
+      {isLoading && <LoadingModal />}
 
-      {isLoading ? (
-        <p className="text-gray-400">로딩 중...</p>
-      ) : gallery.length === 0 ? (
-        <p className="text-gray-400">저장된 캐릭터 이미지가 없습니다.</p>
-      ) : (
-        <div className="space-y-6">
-          {gallery.map(({ folder, images }) => (
-            <div key={folder} className="border border-gray-700 p-4 rounded-lg">
-              {/* 🔹 캐릭터 이름 클릭 시 상세 페이지 이동 */}
-              <h2
-                className={`text-2xl font-semibold mb-2 cursor-pointer hover:text-gold ${
-                  folder === "힣힣힣" ? "text-blue-400" : "text-gray-300"
-                }`}
-                onClick={() => {
-                  if (folder === "힣힣힣") {
-                    handleToggle(folder);
-                  } else {
-                    handleCharacterClick(folder);
-                  }
-                }}
-              >
-                {folder} {folder === "힣힣힣" && (expandedFolders[folder] ? "저장소 🔽" : "저장소 ▶")}
-              </h2>
+      <h1 className="text-2xl font-bold mb-4">캐릭터 갤러리</h1>
 
-              {(folder !== "힣힣힣" || expandedFolders[folder]) && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {images.length > 0 ? (
-                    images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={image}
-                        alt={`캐릭터 ${index}`}
-                        className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
-                        onClick={() => setSelectedImage(image)}
-                      />
-                    ))
-                  ) : (
-                    <p className="text-gray-400">이미지 없음</p>
-                  )}
-                </div>
+      <div className="space-y-6">
+        {gallery.map(({ folder, images }) => (
+          <div
+            key={folder}
+            ref={(el) => {
+              sectionRefs.current[folder] = el;
+            }}
+            className="border border-gray-700 p-4 rounded-lg"
+          >
+            {/* 🔹 캐릭터 이름 클릭 시 상세 페이지 이동 */}
+            <h2
+              className="text-2xl font-semibold mb-2 cursor-pointer hover:text-gold text-gray-300"
+              onClick={() => handleCharacterClick(folder)}
+            >
+              {folder}
+            </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {images.length > 0 ? (
+                images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`캐릭터 ${index}`}
+                    className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
+                    onClick={() => setSelectedImage(image)}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-400">이미지 없음</p>
               )}
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+
+      {/* 🔹 FAB 버튼 & 리스트 팝업 (한 몸처럼 디자인) */}
+      <div className="fixed bottom-0 md:bottom-4 right-0 md:right-4 flex flex-col items-end">
+        {/* 🔹 캐릭터 리스트 팝업 */}
+        <div
+          className={`bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-xl overflow-y-auto transform transition-all duration-300 ${
+            showCharacterList ? "scale-100 opacity-100 mb-4" : "scale-90 opacity-0 pointer-events-none"
+          }`}
+        >
+          <h3 className="text-lg font-bold mb-2">캐릭터 목록</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {gallery.map(({ folder }) => (
+              <button
+                key={folder}
+                onClick={() => scrollToCharacter(folder)}
+                className="bg-gray-700 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-600 transition"
+              >
+                {folder}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+
+        {/* 🔹 FAB 버튼 */}
+        <div
+          ref={fabRef}
+          className={`select-none touch-none relative bg-gradient-to-r from-blue-500 to-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-transform transform ${
+            showCharacterList ? "rotate-90" : "rotate-0"
+          } hover:scale-110`}
+          onClick={() => setShowCharacterList(!showCharacterList)}
+        >
+          <span className="text-xl">{showCharacterList ? "✖" : "🔍"}</span>
+        </div>
+      </div>
 
       {/* 🔹 선택된 이미지가 있을 경우 모달 표시 */}
       {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}

@@ -37,6 +37,7 @@ export default function Navbar() {
       name: "갤러리", 
       subMenu: [
         { label: "캐릭터", route: "/gallery/character" },
+        { label: "저장소", route: "/gallery/stock" },
         { label: "폴더", route: "/gallery/folder" }
       ] 
     },
@@ -64,8 +65,8 @@ export default function Navbar() {
   }, []);
 
   return pathname === "/login" ? null : (
-    <nav className="w-full bg-black text-white border-b border-white/20 relative z-40">
-      <div className="flex px-6 py-3 items-center justify-between">
+    <nav className="w-full bg-black text-white border-b border-white/20 relative z-40 select-none touch-none">
+      <div className="flex px-2 md:px-6 py-3 items-center justify-between">
         {/* 좌측: 로고 */}
         <div
           className="text-xl md:text-2xl font-bold cursor-pointer hover:text-gray-300 transition"
@@ -95,7 +96,7 @@ export default function Navbar() {
             className="flex items-center gap-2 cursor-pointer hover:scale-[1.05] transition"
             onClick={() => setDropdownOpen((prev) => !prev)}
           >
-            <span className="text-sm text-gray-300">{userData?.name || "-"}</span>
+            <span className="hidden md:block text-sm text-gray-300">{userData?.name || "-"}</span>
             <img
               src={userData?.picture || "https://firebasestorage.googleapis.com/v0/b/rp-encyclopedia.appspot.com/o/profilePictures%2FYDW4AGtVZNNxOYznMc2m0DFoxlF2?alt=media&token=248ffc43-c07a-4e88-98e6-713c8394bb33"}
               alt="프로필"

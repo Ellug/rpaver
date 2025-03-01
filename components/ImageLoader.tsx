@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { storage } from "@/libs/firebaseConfig";
-import { ref, listAll, getDownloadURL } from "firebase/storage";
 import LoadingModal from "./LoadingModal";
+import { formatCharacterName } from "@/utils/NameFilter";
+import { fetchImagesFromStorage } from "@/utils/Storage";
 
 type ImageLoaderProps = {
   character: {
@@ -26,22 +26,15 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
     };
   }, []);
 
+  const fetchImages = async () => {
+    setLoading(true);
+    const urls = await fetchImagesFromStorage("imgStock/characterStock/");
+    setImageUrls(urls);
+    setLoading(false);
+  };
+
   // 🔹 스토리지에서 '힣힣힣' 폴더의 이미지 가져오기
   useEffect(() => {
-    const fetchImages = async () => {
-      setLoading(true);
-      try {
-        const folderRef = ref(storage, "charactersIMG/힣힣힣/");
-        const result = await listAll(folderRef);
-        const urls = await Promise.all(result.items.map((item) => getDownloadURL(item)));
-        setImageUrls(urls);
-      } catch (error) {
-        console.error("🔥 이미지 불러오기 오류:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchImages();
   }, []);
 
@@ -62,13 +55,14 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
     }
 
     setLoading(true);
-
     try {
+      const formattedName = formatCharacterName(character.name, character.family);
+
       const oldPaths = selectedImages.map((url) => {
-        const fileName = url.split("%2F").pop()?.split("?")[0]; // URL에서 파일명 추출
+        const fileName = url.split("%2F").pop()?.split("?")[0];
         return {
-          oldPath: `charactersIMG/힣힣힣/${fileName}`,
-          newPath: `charactersIMG/${character.name} ${character.family}/${fileName}`,
+          oldPath: `imgStock/characterStock/${fileName}`,
+          newPath: `charactersIMG/${formattedName}/${fileName}`,
         };
       });
 
@@ -105,7 +99,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
           {loading ? (
             <LoadingModal />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {imageUrls.length > 0 ? (
                 imageUrls.map((url, index) => (
                   <div

@@ -12,6 +12,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { fetchImagesFromStorage } from "@/utils/Storage";
 
 type Item = {
   id: string;
@@ -20,7 +21,6 @@ type Item = {
   detail: string;
   created: number;
   author: string;
-  imageUrl: string[];
 };
 
 export default function ItemDetailPage() {
@@ -29,6 +29,7 @@ export default function ItemDetailPage() {
   const { users } = useUserContext(); // 🔹 UserContext 사용
 
   const [item, setItem] = useState<Item | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -50,11 +51,13 @@ export default function ItemDetailPage() {
             detail: itemData.detail || "설명 없음",
             created: itemData.created instanceof Timestamp ? itemData.created.toMillis() : Date.now(),
             author: itemData.author || "unknown",
-            imageUrl: Array.isArray(itemData.imageUrl) ? itemData.imageUrl : [itemData.imageUrl || ""], // 🔹 배열로 변환
           });
+
+          const urls = await fetchImagesFromStorage(`items/${docSnap.id}/`);
+          setImageUrls(urls);
         } else {
           alert("해당 아이템을 찾을 수 없습니다.");
-          router.push("/board/item");
+          router.back();
         }
       } catch (error) {
         console.error("🔥 Firestore에서 데이터 가져오기 실패:", error);
@@ -122,9 +125,9 @@ export default function ItemDetailPage() {
       {/* 🔹 아이템 이미지 슬라이더 */}
       <div className="relative flex justify-center mb-6">
         <div className="w-full max-w-lg">
-          {item.imageUrl.length > 0 && item.imageUrl[0] ? (
+          {imageUrls.length > 0 && imageUrls[0] ? (
             <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
-              {item.imageUrl.map((img, index) => (
+              {imageUrls.map((img, index) => (
                 <div key={index} className="flex justify-center">
                   <img
                     src={img}

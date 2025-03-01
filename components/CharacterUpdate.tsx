@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "@/libs/firebaseConfig";
 import { collection, addDoc, doc, setDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 import ImageLoader from "@/components/ImageLoader";
+import { fetchImagesFromStorage } from "@/utils/Storage";
 
 type Character = {
   id?: string;
@@ -66,21 +67,17 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
     if (!characterId) return;
     const fetchCharacterImages = async () => {
       setLoading(true);
-      try {
-        const folderName = formData.family ? `${formData.name} ${formData.family}` : formData.name;
-        const folderRef = ref(storage, `charactersIMG/${folderName}/`);
-        const result = await listAll(folderRef);
-        const urls = await Promise.all(result.items.map((item) => getDownloadURL(item)));
-        setImageUrls(urls);
-      } catch (error) {
-        console.error("🔥 스토리지 이미지 불러오기 실패:", error);
-      } finally {
-        setLoading(false);
-      }
+      const folderName = formData.family ? `${formData.name} ${formData.family}` : formData.name;
+      const folderPath = `charactersIMG/${folderName}/`;
+      
+      const urls = await fetchImagesFromStorage(folderPath);
+      setImageUrls(urls);
+      setLoading(false);
     };
-
+  
     fetchCharacterImages();
-  }, [characterId, formData.name, formData.family]);
+  }, [characterId]);
+  
 
   // 🔹 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "@/libs/firebaseConfig";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-
+import LoadingModal from "@/components/LoadingModal";
 
 export default function AddItemPage() {
   const router = useRouter();
@@ -16,8 +16,8 @@ export default function AddItemPage() {
     name: "",
     detail: "",
   });
-  const [image, setImage] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   // 🔹 입력값 변경 핸들러
@@ -25,18 +25,22 @@ export default function AddItemPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 이미지 선택 핸들러
+  // 🔹 이미지 선택 핸들러 (여러 개 추가 가능)
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-      setImageUrl(URL.createObjectURL(e.target.files[0])); // 미리보기용 URL
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      setImages((prev) => [...prev, ...selectedFiles]);
+      setPreviewUrls((prev) => [
+        ...prev,
+        ...selectedFiles.map((file) => URL.createObjectURL(file)),
+      ]);
     }
   };
 
-  // 🔹 이미지 삭제 핸들러
-  const handleImageDelete = () => {
-    setImage(null);
-    setImageUrl(null);
+  // 🔹 이미지 개별 삭제 핸들러
+  const handleImageDelete = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   // 🔹 폼 제출 핸들러
@@ -50,28 +54,27 @@ export default function AddItemPage() {
       alert("로그인이 필요합니다.");
       return;
     }
-
+  
     setLoading(true);
-    let uploadedImageUrl = null;
-
+  
     try {
-      // 🔹 이미지 업로드 (Storage: `items/{name}/{파일명}`)
-      if (image) {
-        const storageRef = ref(storage, `items/${formData.name}/${image.name}`);
-        await uploadBytes(storageRef, image);
-        uploadedImageUrl = await getDownloadURL(storageRef);
-      }
-
-      // 🔹 Firestore에 아이템 정보 저장
-      await addDoc(collection(db, "items"), {
+      // 🔹 Firestore에 아이템 정보 먼저 저장 (문서 ID 확보)
+      const docRef = await addDoc(collection(db, "items"), {
         ...formData,
-        imageUrl: uploadedImageUrl,
         created: Timestamp.now(),
-        author: userData.uid, // 🔹 현재 로그인한 사용자 UID 추가
+        author: userData.uid, 
       });
-
+  
+      // 🔹 이미지 여러 개 업로드 (Storage: `items/{문서ID}/{파일명}`)
+      await Promise.all(
+        images.map(async (image) => {
+          const storageRef = ref(storage, `items/${docRef.id}/${image.name}`);
+          await uploadBytes(storageRef, image);
+        })
+      );
+  
       alert("아이템이 등록되었습니다.");
-      router.push("/board/item"); // 등록 후 목록 페이지로 이동
+      router.back();
     } catch (error) {
       console.error("🔥 아이템 추가 오류:", error);
       alert("등록 중 오류가 발생했습니다.");
@@ -79,9 +82,11 @@ export default function AddItemPage() {
       setLoading(false);
     }
   };
+  
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
+    <div className="p-6 max-w-4xl mx-auto">
+      {loading && <LoadingModal />}
       <h1 className="text-2xl font-bold mb-4">아이템 추가</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -118,17 +123,23 @@ export default function AddItemPage() {
         {/* 🔹 이미지 업로드 */}
         <div>
           <label className="block font-medium">이미지 업로드</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} className="w-full border px-3 py-2 rounded-md" />
+          <input type="file" accept="image/*" multiple onChange={handleImageChange} className="w-full border px-3 py-2 rounded-md" />
 
-          {/* 🔹 이미지 미리보기 */}
-          {imageUrl && (
-            <div className="mt-2">
-              <img src={imageUrl} alt="이미지 미리보기" className="w-full h-40 object-cover rounded-md border" />
-              <button type="button" onClick={handleImageDelete} className="mt-2 text-red-600 underline">
-                이미지 제거
-              </button>
-            </div>
-          )}
+          {/* 🔹 이미지 미리보기 및 삭제 버튼 */}
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {previewUrls.map((url, index) => (
+              <div key={index} className="relative">
+                <img src={url} alt={`이미지 ${index + 1}`} className="w-full h-32 object-cover rounded-md border" />
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 rounded-bl-md"
+                  onClick={() => handleImageDelete(index)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* 🔹 등록 버튼 */}

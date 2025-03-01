@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Search as SearchIcon, ChevronDown } from "lucide-react";
 
-const categories = ["전체", "캐릭터", "히스토리", "설정", "갤러리"];
+const categories = ["전체", "자유", "캐릭터", "아이템", "히스토리", "설정", "갤러리"];
+// const collectionList = ["character_detail", "freeboard", "items"]
 
 export default function Search({ setHoveredCategory }: { setHoveredCategory: (category: string | null) => void }) {
   const [category, setCategory] = useState(categories[0]);
