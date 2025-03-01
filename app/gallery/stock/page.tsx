@@ -59,8 +59,10 @@ export default function GalleryStock() {
             : folderData
         )
       );
+      alert('업로드가 완료됐습니다')
       event.target.value = "";
     } catch (error) {
+      alert('에러. 업로드가 실패했습니다.')
       console.error("🔥 이미지 업로드 실패:", error);
     }
     setIsLoading(false);

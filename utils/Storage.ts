@@ -36,3 +36,15 @@ export const fetchGalleryFromStorage = async (basePath: string) => {
     return [];
   }
 };
+
+// 특정 경로(basePath)의 **폴더 목록만** 가져옴 (이미지 URL X)
+export const fetchFoldersFromStorage = async (basePath: string): Promise<string[]> => {
+ try {
+   const storageRef = ref(storage, basePath);
+   const folderList = await listAll(storageRef);
+   return folderList.prefixes.map((folderRef) => folderRef.name); // 폴더 이름만 반환
+ } catch (error) {
+   console.error("🔥 폴더 목록 불러오기 오류:", error);
+   return [];
+ }
+};

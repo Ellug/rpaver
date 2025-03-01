@@ -95,24 +95,22 @@ export default function CharacterGallery() {
       {/* 🔹 FAB 버튼 & 리스트 팝업 (한 몸처럼 디자인) */}
       <div className="fixed bottom-0 md:bottom-4 right-0 md:right-4 flex flex-col items-end">
         {/* 🔹 캐릭터 리스트 팝업 */}
-        <div
-          className={`bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-[400px] md:max-h-[600px] overflow-y-auto transform transition-all duration-300 ${
-            showCharacterList ? "scale-100 opacity-100 mb-4" : "scale-90 opacity-0 pointer-events-none"
-          }`}
-        >
-          <h3 className="text-lg font-bold mb-2">캐릭터 목록</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {gallery.map(({ folder }) => (
-              <button
-                key={folder}
-                onClick={() => scrollToCharacter(folder)}
-                className="bg-gray-700 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-600 transition"
-              >
-                {folder}
-              </button>
-            ))}
+        {showCharacterList && (
+          <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-[400px] md:max-h-[600px] overflow-y-auto transform transition-all duration-300">
+            <h3 className="text-lg font-bold mb-2">캐릭터 목록</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {gallery.map(({ folder }) => (
+                <button
+                  key={folder}
+                  onClick={() => scrollToCharacter(folder)}
+                  className="bg-gray-700 text-white px-3 py-2 rounded-md text-sm hover:bg-gray-600 transition"
+                >
+                  {folder}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 🔹 FAB 버튼 */}
         <div
