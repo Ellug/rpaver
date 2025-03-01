@@ -10,35 +10,13 @@ import LoadingModal from "@/components/LoadingModal";
 import ImageLoader from "@/components/ImageLoader";
 import { fetchImagesFromStorage } from "@/utils/Storage";
 
-type Character = {
-  id?: string;
-  name: string;
-  family: string;
-  birth: string;
-  detail: string;
-  country: string;
-  gender: string;
-  title: string;
-  personality: string;
-  body: string;
-  unit: string;
-  weapon: string;
-  talent: string;
-  hobby: string;
-  skill: string;
-  voice: string;
-  series: string;
-  familyRelation: string;
-  party: string;
-};
-
-export default function CharacterUpdate({ character, isEdit = false }: { character?: Character; isEdit?: boolean }) {
+export default function CharacterUpdate({ character, isEdit = false }: { character?: CharacterDetail; isEdit?: boolean }) {
   const router = useRouter();
   const { id } = useParams();
   const characterId = Array.isArray(id) ? id[0] : id;
   const [showImageLoader, setShowImageLoader] = useState(false);
 
-  const [formData, setFormData] = useState<Character>({
+  const [formData, setFormData] = useState<CharacterDetail>({
     name: character?.name || "",
     family: character?.family || "",
     birth: character?.birth || "",
@@ -228,7 +206,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
                 id={field.name}
                 type="text"
                 name={field.name}
-                value={formData[field.name as keyof Character]}
+                value={formData[field.name as keyof CharacterDetail]}
                 onChange={handleChange}
                 className="flex-1 p-2 bg-gray-700 rounded-md"
               />

@@ -12,27 +12,6 @@ import "slick-carousel/slick/slick-theme.css";
 import ImageModal from "@/components/ImageModal";
 import { fetchImagesFromStorage } from "@/utils/Storage";
 
-type CharacterDetail = {
-  birth: string;
-  body: string;
-  country: string;
-  detail: string;
-  family: string;
-  familyRelation: string;
-  gender: string;
-  hobby: string;
-  name: string;
-  party: string;
-  personality: string;
-  series: string;
-  skill: string;
-  talent: string;
-  title: string;
-  unit: string;
-  voice: string;
-  weapon: string;
-};
-
 export default function CharacterDetailPage() {
   const router = useRouter();
   const { id } = useParams();

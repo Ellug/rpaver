@@ -7,32 +7,6 @@ import { doc, getDoc } from "firebase/firestore";
 import CharacterUpdate from "@/components/CharacterUpdate";
 import LoadingModal from "@/components/LoadingModal";
 
-type CharacterDetail = {
-  id?: string;
-  birth: string;
-  body: string;
-  brother: string;
-  child: string;
-  country: string;
-  detail: string;
-  family: string;
-  familyRelation: string;
-  gender: string;
-  hobby: string;
-  marriage: string;
-  name: string;
-  parent: string;
-  party: string;
-  personality: string;
-  series: string;
-  skill: string;
-  talent: string;
-  title: string;
-  unit: string;
-  voice: string;
-  weapon: string;
-};
-
 export default function EditCharacterPage() {
   const { id } = useParams();
   const characterId = typeof id === "string" ? decodeURIComponent(id) : "";

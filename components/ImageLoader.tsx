@@ -7,8 +7,8 @@ import { fetchImagesFromStorage } from "@/utils/Storage";
 
 type ImageLoaderProps = {
   character: {
-    name: string;
-    family: string;
+    name?: string;
+    family?: string;
   };
   onClose: () => void;
 };
@@ -54,6 +54,11 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
       return;
     }
 
+    if(!character.name) {
+      alert('캐릭터 이름이 없으면 불러올 수 없습니다.')
+      return
+    }
+    
     setLoading(true);
     try {
       const formattedName = formatCharacterName(character.name, character.family);

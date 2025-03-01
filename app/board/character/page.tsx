@@ -5,20 +5,6 @@ import { useCharacterContext } from "@/contexts/CharacterContext";
 import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 
-// 캐릭터 타입 정의
-type Character = {
-  id: string;
-  birth: string;
-  name: string;
-  family: string;
-  title: string;
-  gender: string;
-  unit: string;
-  party: string;
-  skill: string;
-  body: string;
-};
-
 type SortKey = "birth" | "height" | "weight" | "chest";
 
 // 테이블 컬럼 타입 정의

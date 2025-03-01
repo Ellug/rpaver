@@ -96,7 +96,7 @@ export default function CharacterGallery() {
       <div className="fixed bottom-0 md:bottom-4 right-0 md:right-4 flex flex-col items-end">
         {/* 🔹 캐릭터 리스트 팝업 */}
         <div
-          className={`bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-xl overflow-y-auto transform transition-all duration-300 ${
+          className={`bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-[400px] md:max-h-[600px] overflow-y-auto transform transition-all duration-300 ${
             showCharacterList ? "scale-100 opacity-100 mb-4" : "scale-90 opacity-0 pointer-events-none"
           }`}
         >

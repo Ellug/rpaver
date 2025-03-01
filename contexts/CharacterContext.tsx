@@ -4,20 +4,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { db } from "@/libs/firebaseConfig";
 import { collection, onSnapshot } from "firebase/firestore";
 
-// 캐릭터 타입 정의
-type Character = {
-  id: string;
-  birth: string;
-  name: string;
-  family: string;
-  title: string;
-  gender: string;
-  unit: string;
-  party: string;
-  skill: string;
-  body: string;
-};
-
 type CharacterContextType = {
   characters: Character[];
   characterNames: string[];
