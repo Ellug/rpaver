@@ -51,14 +51,18 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
 
   // 🔹 검색어 주변 텍스트 추출 함수 (undefined 방지)
   const extractContext = (text: string | undefined, keyword: string): string => {
-    if (!text || !keyword) return "";
-
+    if (!text) return "";
+  
     const lowerText = text.toLowerCase();
     const lowerKeyword = keyword.toLowerCase();
     const matchIndex = lowerText.indexOf(lowerKeyword);
-
-    if (matchIndex === -1) return highlightText(text); // 검색어가 없으면 원본 반환
-
+  
+    if (matchIndex === -1) {
+      // 검색어가 없을 경우 앞에서 200글자만 출력
+      const snippet = text.substring(0, 200) + (text.length > 200 ? "..." : "");
+      return highlightText(snippet);
+    }
+  
     const start = Math.max(0, matchIndex - 10);
     const end = Math.min(text.length, matchIndex + lowerKeyword.length + 120);
     
@@ -66,6 +70,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
     
     return highlightText(snippet);
   };
+  
 
   // 🔹 렌더링할 필드 배열 (기본 정보)
   const infoFields = [
