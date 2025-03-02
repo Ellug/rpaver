@@ -91,6 +91,7 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
               {images.map((img, index) => (
                 <img
                   key={index}
+                  alt={`${index}pic`}
                   src={img}
                   className="object-contain rounded-md cursor-pointer hover:scale-105 transition"
                   onClick={() => handleSelectImage(img)}
