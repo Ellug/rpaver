@@ -38,7 +38,7 @@ export default function CharacterDetailPage() {
           const charData = docSnap.data() as CharacterDetail;
           setCharacter(charData);
           
-          // 🔹 Storage에서 이미지 불러오기
+          // Storage에서 이미지 불러오기
           const folderName = charData.family ? `${charData.name} ${charData.family}` : charData.name;
           const urls = await fetchImagesFromStorage(`charactersIMG/${folderName}/`);
           
@@ -79,12 +79,12 @@ export default function CharacterDetailPage() {
     }
   };
 
-  // 🔹 수정 버튼 클릭 시 이동
+  // 수정 버튼 클릭 시 이동
   const handleEditClick = () => {
     router.push(`/board/character/edit/${encodeURIComponent(decodedId)}`);
   };
 
-  // 🔹 **강조 텍스트 및 절취선 처리**
+  // **강조 텍스트 및 절취선 처리**
   const formatDetailText = (text: string) => {
     return (
       <div className="whitespace-pre-wrap">

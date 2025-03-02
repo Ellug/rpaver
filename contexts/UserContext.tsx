@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/libs/firebaseConfig";
 
-// 🔹 유저 데이터 타입 정의
+// 유저 데이터 타입 정의
 interface User {
   uid: string;
   name: string;
@@ -23,7 +23,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const usersCollection = collection(db, "users");
 
-    // 🔹 Firestore 실시간 구독 (onSnapshot 사용)
+    // Firestore 실시간 구독 (onSnapshot 사용)
     const unsubscribe = onSnapshot(usersCollection, (snapshot) => {
       const userList: Record<string, User> = {};
       snapshot.forEach((doc) => {
@@ -33,7 +33,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setUsers(userList);
     });
 
-    // 🔹 컴포넌트 언마운트 시 구독 해제
+    // 컴포넌트 언마운트 시 구독 해제
     return () => unsubscribe();
   }, []);
 

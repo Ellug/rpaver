@@ -52,23 +52,24 @@ export default function EditPostPage() {
     };
 
     fetchPost();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, userData]);
 
-  // 🔹 이미지 업로드 파일 저장 + 에디터에 삽입
+  // 이미지 업로드 파일 저장 + 에디터에 삽입
   const handleImageUpload = (files: FileList | null, insertImage: (url: string) => void) => {
     if (!files) return;
     const newFiles = Array.from(files);
 
     setNewImages((prev) => [...prev, ...newFiles]);
 
-    // 🔥 로컬 URL을 만들어 에디터에 미리보기 삽입
+    // 로컬 URL을 만들어 에디터에 미리보기 삽입
     newFiles.forEach((file) => {
       const localUrl = URL.createObjectURL(file);
       insertImage(localUrl);
     });
   };
 
-  // 🔹 Firebase Storage 업로드 및 URL 변환
+  // Firebase Storage 업로드 및 URL 변환
   const uploadNewImages = async () => {
     const uploadedImageUrls: string[] = [];
     for (const file of newImages) {
@@ -81,7 +82,7 @@ export default function EditPostPage() {
   };
 
   // 이미지가 이상한 blob URL로 저장되는 현상 있음. 도저히 오늘 못하겠다 나중에 해결할랜다.
-  // 🔹 게시글 수정 함수
+  // 게시글 수정 함수
   const handleUpdate = async () => {
     if (!userData) return alert("로그인이 필요합니다.");
     if (!title.trim() || !content.trim()) return alert("제목과 내용을 입력하세요.");
@@ -90,7 +91,7 @@ export default function EditPostPage() {
     try {
       const docRef = doc(db, "free_board", id as string);
   
-      // 🔹 현재 수정된 본문에서 사용 중인 이미지 URL 추출
+      // 현재 수정된 본문에서 사용 중인 이미지 URL 추출
       const regex = /<img[^>]+src="([^">]+)"/g;
       let match;
       let updatedContent = content;
@@ -100,14 +101,14 @@ export default function EditPostPage() {
         currentImages.push(match[1]);
       }
   
-      // 🔹 Firebase Storage에 새 이미지 업로드 (blob: URL 변환)
+      // Firebase Storage에 새 이미지 업로드 (blob: URL 변환)
       const newImageUrls = await uploadNewImages();
       newImages.forEach((file, index) => {
         const localUrl = URL.createObjectURL(file);
         updatedContent = updatedContent.replace(localUrl, newImageUrls[index]);
       });
   
-      // 🔹 Firestore 업데이트 (최종 이미지 반영)
+      // Firestore 업데이트 (최종 이미지 반영)
       await updateDoc(docRef, {
         title,
         content: updatedContent,
@@ -121,7 +122,7 @@ export default function EditPostPage() {
       alert("게시글 수정 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
-      setNewImages([]); // 🔥 업로드 후 이미지 목록 초기화
+      setNewImages([]); // 업로드 후 이미지 목록 초기화
     }
   };  
 
@@ -131,7 +132,7 @@ export default function EditPostPage() {
 
       <h1 className="text-2xl font-bold mb-4">게시글 수정</h1>
 
-      {/* 🔹 제목 입력 */}
+      {/* 제목 입력 */}
       <input
         type="text"
         placeholder="제목을 입력하세요"
@@ -140,10 +141,10 @@ export default function EditPostPage() {
         className="w-full p-2 mb-4 bg-gray-700 rounded-md"
       />
 
-      {/* 🔹 본문 입력 */}
+      {/* 본문 입력 */}
       <TiptapEditor content={content} onChange={setContent} onImageUpload={handleImageUpload} />
 
-      {/* 🔹 게시 버튼 */}
+      {/* 게시 버튼 */}
       <div className="flex justify-center mt-6">
         <button
           onClick={handleUpdate}

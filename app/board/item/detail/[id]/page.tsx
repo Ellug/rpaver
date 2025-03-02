@@ -26,7 +26,7 @@ type Item = {
 export default function ItemDetailPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { users } = useUserContext(); // 🔹 UserContext 사용
+  const { users } = useUserContext();
 
   const [item, setItem] = useState<Item | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -84,7 +84,7 @@ export default function ItemDetailPage() {
           .split("---")
           .map((segment, index) => (
             <React.Fragment key={index}>
-              {index > 0 && <hr className="border-gray-500 my-2" />} {/* 절취선 삽입 */}
+              {index > 0 && <hr className="border-gray-500 opacity-80 my-2" />} {/* 절취선 삽입 */}
               <div dangerouslySetInnerHTML={{ __html: segment }} />
             </React.Fragment>
           ))}

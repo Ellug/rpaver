@@ -14,7 +14,7 @@ export default function FileManager() {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // 🔹 현재 경로의 파일 및 폴더 가져오기
+  // 현재 경로의 파일 및 폴더 가져오기
   const fetchFiles = async () => {
     setIsLoading(true);
     try {
@@ -46,7 +46,7 @@ export default function FileManager() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPath]);
 
-  // 🔹 뒤로가기 기능
+  // 뒤로가기 기능
   const handleBack = () => {
     const parts = currentPath.split("/").filter(Boolean);
     if (parts.length > 0) {
@@ -54,7 +54,7 @@ export default function FileManager() {
     }
   };
 
-  // 🔹 폴더 추가 기능
+  // 폴더 추가 기능
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return alert("폴더명을 입력하세요.");
     setIsLoading(true);
@@ -72,7 +72,7 @@ export default function FileManager() {
     }
   };
 
-  // 🔹 폴더 삭제 기능
+  // 폴더 삭제 기능
   const handleDeleteFolder = async (folderName: string) => {
     if (!window.confirm(`"${folderName}" 폴더를 삭제하시겠습니까? (내부 파일 포함)`)) return;
     setIsLoading(true);
@@ -93,7 +93,7 @@ export default function FileManager() {
     }
   };
 
-  // 🔹 파일 삭제 기능 (이미지 포함)
+  // 파일 삭제 기능 (이미지 포함)
   const handleDeleteFile = async (fileName: string) => {
     if (!window.confirm(`"${fileName}" 파일을 삭제하시겠습니까?`)) return;
     setIsLoading(true);
@@ -109,7 +109,7 @@ export default function FileManager() {
     }
   };
 
-  // 🔹 파일 업로드 (여러 개)
+  // 파일 업로드 (여러 개)
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
     const files = Array.from(event.target.files);
@@ -128,19 +128,19 @@ export default function FileManager() {
     } catch (error) {
       console.error("🔥 파일 업로드 오류:", error);
     } finally {
-      event.target.value = ""; // 🔹 업로드 완료 후 input 초기화
+      event.target.value = ""; // 업로드 완료 후 input 초기화
       setIsLoading(false);
     }
   };
 
-  // 🔹 파일 선택 토글
+  // 파일 선택 토글
   const toggleFileSelection = (fileName: string) => {
     setSelectedFiles((prev) =>
       prev.includes(fileName) ? prev.filter((f) => f !== fileName) : [...prev, fileName]
     );
   };
 
-  // 🔹 파일 이동 기능 (여러 개 이동 가능)
+  // 파일 이동 기능 (여러 개 이동 가능)
   const handleMoveFiles = async (destinationFolder: string) => {
     if (selectedFiles.length === 0) return;
     if (!window.confirm(`"${selectedFiles.join(", ")}"을(를) "${destinationFolder}" 폴더로 이동하시겠습니까?`)) return;
@@ -177,11 +177,11 @@ export default function FileManager() {
 
   return (
     <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-4xl mx-auto">
-      {isLoading && <LoadingModal />} {/* 🔹 로딩 중일 때 모달 표시 */}
+      {isLoading && <LoadingModal />} {/* 로딩 중일 때 모달 표시 */}
 
       <h1 className="text-2xl font-bold mb-4">📁 파일 관리자</h1>
 
-      {/* 🔹 경로 네비게이션 */}
+      {/* 경로 네비게이션 */}
       <div className="mb-4 flex justify-between items-center">
         <p className="text-sm text-gray-400">현재 경로: {currentPath}</p>
         {currentPath !== "/" && (
@@ -189,7 +189,7 @@ export default function FileManager() {
         )}
       </div>
 
-      {/* 🔹 파일 및 폴더 리스트 */}
+      {/* 파일 및 폴더 리스트 */}
       <div className="border border-gray-700 rounded-lg p-4">
         {files.map((file) => (
           <div key={file.name} className="flex justify-between items-center py-2">
@@ -221,7 +221,7 @@ export default function FileManager() {
         ))}
       </div>
 
-      {/* 🔹 이동할 폴더 선택 UI */}
+      {/* 이동할 폴더 선택 UI */}
       {selectedFiles.length > 0 && (
         <div className="mt-4 p-4 border border-gray-700 rounded-lg">
           <h2 className="text-lg font-semibold mb-2">📦 이동할 폴더 선택</h2>
@@ -239,14 +239,14 @@ export default function FileManager() {
         </div>
       )}
 
-      {/* 🔹 폴더 추가 */}
+      {/* 폴더 추가 */}
       <div className="mt-4 flex gap-2">
         <input type="text" placeholder="새 폴더 이름" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
           className="p-2 bg-gray-700 rounded-md text-white" />
         <button className="px-4 py-2 bg-blue-600 rounded-md" onClick={handleCreateFolder}>폴더 추가</button>
       </div>
 
-      {/* 🔹 파일 업로드 */}
+      {/* 파일 업로드 */}
       <div className="mt-4">
         <input type="file" multiple onChange={handleFileUpload} className="text-gray-300" />
       </div>

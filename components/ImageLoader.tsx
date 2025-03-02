@@ -21,7 +21,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
   const [loading, setLoading] = useState(false);
   const [fetchingImages, setFetchingImages] = useState(false);
 
-  // 🔹 모달이 열릴 때 배경 스크롤 막기
+  // 모달이 열릴 때 배경 스크롤 막기
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -29,7 +29,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
     };
   }, []);
 
-  // 🔹 스토리지에서 폴더 목록 가져오기
+  // 스토리지에서 폴더 목록 가져오기
   useEffect(() => {
     const fetchFolders = async () => {
       setLoading(true);
@@ -41,7 +41,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
     fetchFolders();
   }, []);
 
-  // 🔹 선택한 폴더의 이미지 목록 가져오기
+  // 선택한 폴더의 이미지 목록 가져오기
   const handleFolderSelect = async (folder: string) => {
     setSelectedFolder(folder);
     setFetchingImages(true);
@@ -50,7 +50,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
     setFetchingImages(false);
   };
 
-  // 🔹 이미지 선택/해제 토글
+  // 이미지 선택/해제 토글
   const toggleImageSelection = (imageUrl: string) => {
     setSelectedImages((prevSelected) =>
       prevSelected.includes(imageUrl)
@@ -59,7 +59,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
     );
   };
 
-  // 🔹 불러오기 버튼 클릭 시 이미지 이동 요청
+  // 불러오기 버튼 클릭 시 이미지 이동 요청
   const handleMoveImages = async () => {
     if (selectedImages.length === 0) {
       alert("📌 이동할 이미지를 선택해주세요.");
@@ -111,7 +111,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
       <div className="bg-gray-800 p-6 rounded-lg text-white shadow-lg w-full h-full flex flex-col">
         <h2 className="text-xl font-semibold mb-4">폴더 선택 후 이미지를 불러오세요</h2>
 
-        {/* 🔹 폴더 선택 Dropdown */}
+        {/* 폴더 선택 Dropdown */}
         <div className="my-8 flex justify-center">
           <label className="block mr-2">📂 폴더 선택</label>
           <select
@@ -128,7 +128,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
           </select>
         </div>
 
-        {/* 🔹 이미지 목록을 스크롤 가능하도록 max-height & overflow 설정 */}
+        {/* 이미지 목록을 스크롤 가능하도록 max-height & overflow 설정 */}
         <div className="flex-1 overflow-y-auto border border-gray-700 rounded-md p-2">
           {fetchingImages ? (
             <LoadingModal />
@@ -156,7 +156,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
           )}
         </div>
 
-        {/* 🔹 버튼 그룹 */}
+        {/* 버튼 그룹 */}
         <div className="flex justify-end gap-4 mt-6 mr-6">
           <button
             type="button"

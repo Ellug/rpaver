@@ -13,17 +13,17 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
     fetchStorageItems(currentPath);
   }, [currentPath]);
 
-  // 🔹 Storage 탐색 함수 (폴더 & 이미지 목록 불러오기)
+  // Storage 탐색 함수 (폴더 & 이미지 목록 불러오기)
   const fetchStorageItems = async (path: string) => {
     setLoading(true);
     try {
       const storageRef = ref(storage, path);
       const result = await listAll(storageRef);
 
-      // 🔹 폴더 목록 가져오기
+      // 폴더 목록 가져오기
       setFolders(result.prefixes.map((folder) => folder.fullPath));
 
-      // 🔹 이미지 목록 가져오기
+      // 이미지 목록 가져오기
       const urls = await Promise.all(result.items.map((item) => getDownloadURL(item)));
       setImages(urls);
     } catch (error) {
@@ -33,18 +33,18 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
     }
   };
 
-  // 🔹 선택한 이미지 적용
+  // 선택한 이미지 적용
   const handleSelectImage = (imageUrl: string) => {
     const isConfirmed = window.confirm("이 이미지를 프로필로 설정하시겠습니까?");
     if (isConfirmed) onSelect(imageUrl);
   };
 
-  // 🔹 폴더 탐색 (클릭 시 해당 폴더로 이동)
+  // 폴더 탐색 (클릭 시 해당 폴더로 이동)
   const handleFolderClick = (folderPath: string) => {
     setCurrentPath(folderPath);
   };
 
-  // 🔹 뒤로 가기 (상위 폴더로 이동)
+  // 뒤로 가기 (상위 폴더로 이동)
   const handleGoBack = () => {
     if (!currentPath) return;
     const pathSegments = currentPath.split("/").slice(0, -1).join("/");
@@ -58,7 +58,7 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
       <div className="bg-gray-800 p-6 rounded-lg text-white shadow-lg w-full max-w-4xl max-h-[80vh] flex flex-col">
         <h2 className="text-lg font-semibold mb-4">이미지 선택</h2>
 
-        {/* 🔹 현재 경로 표시 및 뒤로가기 */}
+        {/* 현재 경로 표시 및 뒤로가기 */}
         <div className="mb-4 flex justify-between items-center">
           <p className="text-sm text-gray-300">{currentPath || "Storage 루트"}</p>
           {currentPath && (
@@ -68,9 +68,9 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
           )}
         </div>
 
-        {/* 🔹 스크롤 가능한 컨테이너 */}
+        {/* 스크롤 가능한 컨테이너 */}
         <div className="overflow-y-auto flex-1 space-y-4 p-2">
-          {/* 🔹 폴더 리스트 */}
+          {/* 폴더 리스트 */}
           {folders.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {folders.map((folder, index) => (
@@ -85,7 +85,7 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
             </div>
           )}
 
-          {/* 🔹 이미지 리스트 */}
+          {/* 이미지 리스트 */}
           {images.length > 0 ? (
             <div className="grid grid-cols-4 gap-2">
               {images.map((img, index) => (
@@ -102,7 +102,7 @@ export default function ImagePicker({ onSelect, onClose }: { onSelect: (imageUrl
           )}
         </div>
 
-        {/* 🔹 닫기 버튼 */}
+        {/* 닫기 버튼 */}
         <button onClick={onClose} className="mt-4 w-full bg-gray-700 py-2 rounded-md hover:bg-gray-600 transition">
           닫기
         </button>

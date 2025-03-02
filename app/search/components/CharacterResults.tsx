@@ -39,9 +39,9 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
     fetchSearchResults();
   }, [queryText]);
 
-  // 🔥 검색어 하이라이트 함수 (undefined 방지)
+  // 검색어 하이라이트 함수
   const highlightText = (text: string | undefined): string => {
-    if (!text) return ""; // ✅ undefined 방지
+    if (!text) return "";
     const regex = new RegExp(`(${queryText})`, "gi");
     return text.replace(
       regex,
@@ -49,7 +49,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
     );
   };
 
-  // 🔹 검색어 주변 텍스트 추출 함수 (undefined 방지)
+  // 검색어 주변 텍스트 추출 함수
   const extractContext = (text: string | undefined, keyword: string): string => {
     if (!text) return "";
   
@@ -72,7 +72,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
   };
   
 
-  // 🔹 렌더링할 필드 배열 (기본 정보)
+  // 렌더링할 필드 배열 (기본 정보)
   const infoFields = [
     { label: "칭호", key: "title" },
     { label: "국적", key: "country" },
@@ -96,7 +96,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
               key={item.id || index}
               className="p-6 border-t border-gray-500 border-opacity-80 shadow-md 
                          hover:bg-gray-900 hover:bg-opacity-70 transition cursor-pointer"
-              onClick={() => router.push(`/board/character/detail/${item.id}`)} // ✅ 클릭 시 라우팅
+              onClick={() => router.push(`/board/character/detail/${item.id}`)}
             >
               {/* 캐릭터 정보 */}
               <h3
@@ -110,7 +110,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 {infoFields.map(({ label, key }, fieldIndex) => {
                   const value = item[key as keyof CharacterDetail] as string | undefined;
-                  if (!value) return null; // ✅ 값이 없는 필드는 렌더링하지 않음
+                  if (!value) return null; // 값이 없는 필드는 렌더링하지 않음
                   return (
                     <p
                       key={`${key}-${fieldIndex}`}

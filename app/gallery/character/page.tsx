@@ -17,7 +17,7 @@ export default function CharacterGallery() {
   const fabRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // 🔹 캐릭터 이미지 가져오기
+  // 캐릭터 이미지 가져오기
   useEffect(() => {
     const fetchGallery = async () => {
       setIsLoading(true);
@@ -29,7 +29,7 @@ export default function CharacterGallery() {
     fetchGallery();
   }, []);
 
-  // 🔹 클릭 시 해당 캐릭터의 ID를 찾아서 상세 페이지로 이동
+  // 클릭 시 해당 캐릭터의 ID를 찾아서 상세 페이지로 이동
   const handleCharacterClick = (folderName: string) => {
     const matchedCharacter = characters.find(
       (char) => (char.family ? `${char.name} ${char.family}` : char.name) === folderName
@@ -42,7 +42,7 @@ export default function CharacterGallery() {
     }
   };
 
-  // 🔹 특정 캐릭터 섹션으로 스크롤 이동
+  // 특정 캐릭터 섹션으로 스크롤 이동
   const scrollToCharacter = (folderName: string) => {
     if (sectionRefs.current[folderName]) {
       sectionRefs.current[folderName]?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -65,7 +65,7 @@ export default function CharacterGallery() {
             }}
             className="border border-gray-700 p-4 rounded-lg"
           >
-            {/* 🔹 캐릭터 이름 클릭 시 상세 페이지 이동 */}
+            {/* 캐릭터 이름 클릭 시 상세 페이지 이동 */}
             <h2
               className="text-2xl font-semibold mb-2 cursor-pointer hover:text-gold text-gray-300"
               onClick={() => handleCharacterClick(folder)}
@@ -92,9 +92,9 @@ export default function CharacterGallery() {
         ))}
       </div>
 
-      {/* 🔹 FAB 버튼 & 리스트 팝업 (한 몸처럼 디자인) */}
+      {/* FAB 버튼 & 리스트 팝업 (한 몸처럼 디자인) */}
       <div className="fixed bottom-0 md:bottom-4 right-0 md:right-4 flex flex-col items-end">
-        {/* 🔹 캐릭터 리스트 팝업 */}
+        {/* 캐릭터 리스트 팝업 */}
         {showCharacterList && (
           <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-[400px] md:max-h-[600px] overflow-y-auto transform transition-all duration-300">
             <h3 className="text-lg font-bold mb-2">캐릭터 목록</h3>
@@ -112,7 +112,7 @@ export default function CharacterGallery() {
           </div>
         )}
 
-        {/* 🔹 FAB 버튼 */}
+        {/* FAB 버튼 */}
         <div
           ref={fabRef}
           className={`select-none touch-none relative bg-gradient-to-r from-blue-500 to-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg cursor-pointer transition-transform transform ${
@@ -124,7 +124,7 @@ export default function CharacterGallery() {
         </div>
       </div>
 
-      {/* 🔹 선택된 이미지가 있을 경우 모달 표시 */}
+      {/* 선택된 이미지가 있을 경우 모달 표시 */}
       {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
     </div>
   );

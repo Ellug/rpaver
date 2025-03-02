@@ -18,21 +18,21 @@ export default function AddPostPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 이미지 업로드 파일 저장 + 에디터에 삽입
+  // 이미지 업로드 파일 저장 + 에디터에 삽입
   const handleImageUpload = (files: FileList | null, insertImage: (url: string) => void) => {
     if (!files) return;
     const newFiles = Array.from(files);
   
     setImageFiles((prev) => [...prev, ...newFiles]);
   
-    // 🔥 로컬 URL을 만들어 에디터에 미리보기 삽입
+    // 로컬 URL을 만들어 에디터에 미리보기 삽입
     newFiles.forEach((file) => {
       const localUrl = URL.createObjectURL(file);
       insertImage(localUrl);
     });
   };
 
-  // 🔹 Firebase Storage 업로드 및 URL 변환
+  // Firebase Storage 업로드 및 URL 변환
   const uploadImages = async () => {
     const uploadedImageUrls: string[] = [];
     for (const file of imageFiles) {
@@ -44,23 +44,23 @@ export default function AddPostPage() {
     return uploadedImageUrls;
   };
 
-  // 🔹 게시글 업로드 함수
+  // 게시글 업로드 함수
   const handleSubmit = async () => {
     if (!userData) return alert("로그인이 필요합니다.");
     if (!title.trim() || !content.trim()) return alert("제목과 내용을 입력하세요.");
     setLoading(true);
   
     try {
-      const imageUrls = await uploadImages(); // 🔥 Firebase Storage에 업로드 후 URL 리스트 받기
+      const imageUrls = await uploadImages(); // Firebase Storage에 업로드 후 URL 리스트 받기
       let finalContent = content;
   
-      // 🔥 본문 내 로컬 이미지 URL을 Firebase Storage URL로 변경
+      // 본문 내 로컬 이미지 URL을 Firebase Storage URL로 변경
       imageUrls.forEach((url, index) => {
         const localUrl = URL.createObjectURL(imageFiles[index]);
         finalContent = finalContent.replace(localUrl, url);
       });
   
-      // 🔥 Firestore에 게시글 저장 (이미지 URL 목록 포함)
+      // Firestore에 게시글 저장 (이미지 URL 목록 포함)
       await addDoc(collection(db, "free_board"), {
         title,
         content: finalContent,
@@ -89,7 +89,7 @@ export default function AddPostPage() {
 
       <h1 className="text-2xl font-bold mb-4">새 게시글 작성</h1>
 
-      {/* 🔹 제목 입력 */}
+      {/* 제목 입력 */}
       <input
         type="text"
         placeholder="제목을 입력하세요"
@@ -98,10 +98,10 @@ export default function AddPostPage() {
         className="w-full p-2 mb-4 bg-gray-700 rounded-md"
       />
 
-      {/* 🔹 본문 입력 */}
+      {/* 본문 입력 */}
       <TiptapEditor content={content} onChange={setContent} onImageUpload={handleImageUpload} />
 
-      {/* 🔹 게시 버튼 */}
+      {/* 게시 버튼 */}
       <div className="flex justify-center mt-6">
         <button
           onClick={handleSubmit}

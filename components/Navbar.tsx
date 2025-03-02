@@ -90,7 +90,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* 🔹 우측: 유저 정보 (프로필) */}
+        {/* 우측: 유저 정보 (프로필) */}
         <div ref={dropdownRef} className="relative z-50">
           <div
             className="flex items-center gap-2 cursor-pointer hover:scale-[1.05] transition"
@@ -104,7 +104,7 @@ export default function Navbar() {
             />
           </div>
 
-          {/* 🔹 드롭다운 메뉴 */}
+          {/* 드롭다운 메뉴 */}
           <div className={`absolute right-0 mt-2 w-40 bg-gray-800 border border-white/10 rounded-lg shadow-lg z-50 transition-all duration-300
             ${isDropdownOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
           >
@@ -124,7 +124,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* 🔹 하위 메뉴 확장 영역 */}
+      {/* 하위 메뉴 확장 영역 */}
       <div
         className={`absolute left-0 w-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-in-out ${
           hoveredCategory ? "h-[56px] flex items-center justify-center" : "h-[2px]"

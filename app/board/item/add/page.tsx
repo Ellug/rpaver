@@ -20,12 +20,12 @@ export default function AddItemPage() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // 🔹 입력값 변경 핸들러
+  // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 이미지 선택 핸들러 (여러 개 추가 가능)
+  // 이미지 선택 핸들러 (여러 개 추가 가능)
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
@@ -37,13 +37,13 @@ export default function AddItemPage() {
     }
   };
 
-  // 🔹 이미지 개별 삭제 핸들러
+  // 이미지 개별 삭제 핸들러
   const handleImageDelete = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // 🔹 폼 제출 핸들러
+  // 폼 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.category || !formData.name || !formData.detail) {
@@ -58,14 +58,14 @@ export default function AddItemPage() {
     setLoading(true);
   
     try {
-      // 🔹 Firestore에 아이템 정보 먼저 저장 (문서 ID 확보)
+      // Firestore에 아이템 정보 먼저 저장 (문서 ID 확보)
       const docRef = await addDoc(collection(db, "items"), {
         ...formData,
         created: Timestamp.now(),
         author: userData.uid, 
       });
   
-      // 🔹 이미지 여러 개 업로드 (Storage: `items/{문서ID}/{파일명}`)
+      // 이미지 여러 개 업로드 (Storage: `items/{문서ID}/{파일명}`)
       await Promise.all(
         images.map(async (image) => {
           const storageRef = ref(storage, `items/${docRef.id}/${image.name}`);
@@ -90,7 +90,7 @@ export default function AddItemPage() {
       <h1 className="text-2xl font-bold mb-4">아이템 추가</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* 🔹 입력 필드 목록 */}
+        {/* 입력 필드 목록 */}
         {[
           { label: "카테고리", name: "category", type: "text", placeholder: "카테고리 입력" },
           { label: "이름", name: "name", type: "text", placeholder: "이름 입력" },
@@ -108,7 +108,7 @@ export default function AddItemPage() {
           </div>
         ))}
 
-        {/* 🔹 설명 입력 */}
+        {/* 설명 입력 */}
         <div>
           <label className="block font-medium">설명</label>
           <textarea
@@ -120,7 +120,7 @@ export default function AddItemPage() {
           />
         </div>
 
-        {/* 🔹 이미지 업로드 */}
+        {/* 이미지 업로드 */}
         <div>
           <label className="block font-medium">이미지 업로드</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange} className="w-full border px-3 py-2 rounded-md" />
@@ -142,7 +142,7 @@ export default function AddItemPage() {
           </div>
         </div>
 
-        {/* 🔹 등록 버튼 */}
+        {/* 등록 버튼 */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition disabled:bg-gray-400"

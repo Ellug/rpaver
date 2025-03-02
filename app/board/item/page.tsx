@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/libs/firebaseConfig";
 import { useRouter } from "next/navigation";
-import { useUserContext } from "@/contexts/UserContext"; // 🔹 UserContext 추가
+import { useUserContext } from "@/contexts/UserContext";
 
 // 아이템 타입 정의
 type Item = {
@@ -13,7 +13,7 @@ type Item = {
   name: string;
   detail: string;
   created: number; // Firebase Timestamp (밀리초 변환)
-  author: string; // 🔹 작성자 UID
+  author: string;
 };
 
 export default function ItemBoard() {
@@ -39,7 +39,7 @@ export default function ItemBoard() {
           name: data.name || "",
           detail: data.detail || "",
           created: data.created instanceof Timestamp ? data.created.toMillis() : 0,
-          author: data.author || "unknown", // 🔹 작성자 UID 저장 (없으면 "unknown")
+          author: data.author || "unknown",
         };
       });
 
@@ -50,7 +50,7 @@ export default function ItemBoard() {
     fetchItems();
   }, []);
 
-  // 🔹 필터 & 정렬 적용
+  // 필터 & 정렬 적용
   useEffect(() => {
     let updatedItems = [...items];
 
@@ -141,7 +141,7 @@ export default function ItemBoard() {
           </select>
         </div>
 
-        {/* 🔹 검색 인풋 */}
+        {/* 검색 인풋 */}
         <div className="flex items-center gap-2">
           <label className="font-medium">검색:</label>
           <input
@@ -153,7 +153,7 @@ export default function ItemBoard() {
           />
         </div>
 
-        {/* 🔹 등록 버튼 */}
+        {/* 등록 버튼 */}
         <button
           onClick={handleRegisterClick}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
@@ -180,7 +180,7 @@ export default function ItemBoard() {
           </thead>
           <tbody>
             {filteredItems.map((item) => {
-              const user = users[item.author]; // 🔹 작성자 정보 가져오기
+              const user = users[item.author]; // 작성자 정보 가져오기
               return (
                 <tr key={item.id} onClick={() => handleRowClick(item.id)} className="hover:bg-gray-800 cursor-pointer">
                   <td className="border px-4 py-2 text-center">{item.category}</td>

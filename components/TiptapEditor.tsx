@@ -28,7 +28,7 @@ import {
   AlignCenterIcon,
 } from "lucide-react";
 
-// ✅ **이미지 크기 조절 확장**
+// **이미지 크기 조절 확장**
 const ResizableImage = Image.extend({
   addAttributes() {
     return {
@@ -73,19 +73,19 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
     },
   });
 
-  // ✅ **외부 `content`가 변경될 때 에디터 반영**
+  // **외부 `content`가 변경될 때 에디터 반영**
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content, false); // 🔥 기존 상태 유지하며 변경
+      editor.commands.setContent(content, false); // 기존 상태 유지하며 변경
     }
   }, [content, editor]);
 
-  // ✅ 에디터 내부에서 이미지 삽입 함수
+  // 에디터 내부에서 이미지 삽입 함수
   const insertImage = (url: string) => {
     editor?.chain().focus().setImage({ src: url }).run();
   };
 
-  // ✅ **링크 추가 핸들러**
+  // **링크 추가 핸들러**
   const handleAddLink = () => {
     if (!linkURL.trim()) return alert("링크를 입력하세요.");
   
@@ -96,7 +96,7 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
       ?.chain()
       .focus()
       .extendMarkRange("link")
-      .setLink({ href: formattedLink }) // 🔥 링크 추가
+      .setLink({ href: formattedLink }) // 링크 추가
       .run();
   
     setLinkURL(""); // 입력값 초기화
@@ -128,7 +128,7 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
           </button>
         ))}
 
-        {/* 🔥 폰트 크기 드롭다운 */}
+        {/* 폰트 크기 드롭다운 */}
         <div className="relative bg-gray-700 px-2 py-1 rounded flex items-center">
           <TypeIcon className="w-5 h-5 text-white" />
           <select
@@ -147,7 +147,7 @@ export default function TiptapEditor({ content, onChange, onImageUpload }: Tipta
           </select>
         </div>
 
-        {/* 🔥 폰트 색상 조절 */}
+        {/* 폰트 색상 조절 */}
         <div className="flex items-center gap-1 bg-gray-700 px-2 rounded">
           <PaletteIcon className="w-5 h-5 text-white" />
           <input

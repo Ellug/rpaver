@@ -54,15 +54,16 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
     };
   
     fetchCharacterImages();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [characterId]);
   
 
-  // 🔹 입력값 변경 핸들러
+  // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 캐릭터 저장 핸들러
+  // 캐릭터 저장 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -97,7 +98,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
     }
   };
 
-  // 🔹 이미지 업로드 핸들러
+  // 이미지 업로드 핸들러
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
@@ -114,7 +115,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
       const newUrls = await Promise.all(uploadPromises);
       setImageUrls((prev) => [...prev, ...newUrls]);
 
-      // 🔹 파일 선택 초기화
+      // 파일 선택 초기화
       e.target.value = "";
     } catch (error) {
       console.error("🔥 이미지 업로드 실패:", error);
@@ -123,7 +124,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
     }
   };
 
-  // 🔹 이미지 삭제 핸들러
+  // 이미지 삭제 핸들러
   const handleDeleteImage = async (imageUrl: string) => {
     if (!window.confirm("정말로 이 이미지를 삭제하시겠습니까?")) return;
     setLoading(true);
@@ -144,7 +145,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
       {loading && <LoadingModal />}
 
       <form onSubmit={handleSubmit} autoComplete="new-password" className="flex flex-col gap-4">
-        {/* 🔹 이미지 목록 미리보기 */}
+        {/* 이미지 목록 미리보기 */}
         <div className="flex flex-wrap gap-2">
           {imageUrls.map((img, index) => (
             <div key={index} className="relative w-36 h-36">
@@ -160,7 +161,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           ))}
         </div>
 
-        {/* 🔹 파일 업로드 */}
+        {/* 파일 업로드 */}
         {isEdit === true &&
           <div className="flex gap-4 mt-4 justify-center">
             <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
@@ -177,7 +178,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           </div>
         }
 
-        {/* 🔹 입력 필드 */}
+        {/* 입력 필드 */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { label: "이름", name: "name" },
@@ -220,7 +221,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           {isEdit ? "수정하기" : "등록하기"}
         </button>
 
-        {/* 🔹 ImageLoader 컴포넌트 렌더링 */}
+        {/* ImageLoader 컴포넌트 렌더링 */}
         {showImageLoader && <ImageLoader character={formData} onClose={() => setShowImageLoader(false)} />}
       </form>
     </div>

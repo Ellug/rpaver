@@ -31,9 +31,10 @@ export default function FreeBoard() {
   useEffect(() => {
     fetchTotalPosts();
     fetchPosts(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 🔹 Firestore에서 총 게시물 수 가져오기 (한 번만 실행)
+  // Firestore에서 총 게시물 수 가져오기 (한 번만 실행)
   const fetchTotalPosts = async () => {
     try {
       const countSnap = await getCountFromServer(collection(db, "free_board"));
@@ -43,7 +44,7 @@ export default function FreeBoard() {
     }
   };
 
-  // 🔹 Firestore에서 20개씩 최신순으로 가져오기
+  // Firestore에서 20개씩 최신순으로 가져오기
   const fetchPosts = async (page: number) => {
     if (loading) return;
     setLoading(true);
@@ -83,17 +84,17 @@ export default function FreeBoard() {
     }
   };
 
-  // 🔹 페이지 변경 함수
+  // 페이지 변경 함수
   const changePage = (pageNumber: number) => {
     if (pageNumber !== currentPage) {
       fetchPosts(pageNumber);
     }
   };
 
-  // 🔹 총 페이지 수 계산
+  // 총 페이지 수 계산
   const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-  // 🔹 게시글 클릭 시 상세 페이지 이동
+  // 게시글 클릭 시 상세 페이지 이동
   const handleRowClick = (id: string) => {
     router.push(`/board/free/detail/${id}`);
   };
@@ -115,7 +116,7 @@ export default function FreeBoard() {
       <div className="flex flex-col md:flex-row gap-4 justify-between mb-4">
         <h1 className="text-2xl font-bold mb-4">자유 게시판</h1>
 
-        {/* 🔹 글쓰기 버튼 */}
+        {/* 글쓰기 버튼 */}
         <button
           onClick={() => router.push("/board/free/add")}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
@@ -124,7 +125,7 @@ export default function FreeBoard() {
         </button>
       </div>
 
-      {/* 🔹 게시글 목록 */}
+      {/* 게시글 목록 */}
       <div className="overflow-x-auto text-sm">
         <table className="w-full border border-gray-800 table-fixed">
           <thead>
@@ -152,8 +153,8 @@ export default function FreeBoard() {
                   className: "text-left",
                 },
                 { key: "views", value: post.views, className: "text-center max-md:hidden" },
-                { key: "likes", value: post.likes, className: "text-center max-md:hidden" }, // 🔥 배열 길이로 변환된 값
-                { key: "comments", value: post.comments, className: "text-center max-md:hidden" }, // 🔥 배열 길이로 변환된 값
+                { key: "likes", value: post.likes, className: "text-center max-md:hidden" }, // 배열 길이로 변환된 값
+                { key: "comments", value: post.comments, className: "text-center max-md:hidden" }, // 배열 길이로 변환된 값
                 { key: "createdAt", value: new Date(post.createdAt).toLocaleDateString("ko-KR"), className: "text-center text-gray-400 max-md:hidden" },
               ];
 
@@ -171,7 +172,7 @@ export default function FreeBoard() {
         </table>
       </div>
 
-      {/* 🔹 페이지네이션 버튼 */}
+      {/* 페이지네이션 버튼 */}
       <div className="flex justify-center mt-4 space-x-2">
         {Array.from({ length: totalPages }, (_, index) => (
           <button

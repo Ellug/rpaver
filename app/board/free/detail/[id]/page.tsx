@@ -74,7 +74,7 @@ export default function PostDetailPage() {
           createdAt: postData.createdAt.toMillis(),
         });
 
-        // 🔹 Firestore 트랜잭션으로 조회수 증가
+        // Firestore 트랜잭션으로 조회수 증가
         await updateDoc(docRef, { views: increment(1) });
       } catch (error) {
         console.error("🔥 게시글 가져오기 실패:", error);
@@ -84,9 +84,10 @@ export default function PostDetailPage() {
     };
 
     fetchPost();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // 🔹 좋아요 버튼 (중복 방지)
+  // 좋아요 버튼 (중복 방지)
   const handleLike = async () => {
     if (!id || !post || !userData) return;
     const postRef = doc(db, "free_board", id as string);
@@ -95,10 +96,10 @@ export default function PostDetailPage() {
     let updatedDislikes = [...post.dislikes];
 
     if (updatedLikes.includes(userData.uid)) {
-      // 🔥 이미 좋아요 → 좋아요 취소
+      // 이미 좋아요 → 좋아요 취소
       updatedLikes = updatedLikes.filter((uid) => uid !== userData.uid);
     } else {
-      // 👍 좋아요 추가 (싫어요 되어있으면 취소)
+      // 좋아요 추가 (싫어요 되어있으면 취소)
       updatedLikes.push(userData.uid);
       updatedDislikes = updatedDislikes.filter((uid) => uid !== userData.uid);
     }
@@ -112,7 +113,7 @@ export default function PostDetailPage() {
     setLoading(false);
   };
 
-  // 🔹 싫어요 버튼 (중복 방지)
+  // 싫어요 버튼 (중복 방지)
   const handleDislike = async () => {
     if (!id || !post || !userData) return;
     const postRef = doc(db, "free_board", id as string);
@@ -121,10 +122,10 @@ export default function PostDetailPage() {
     let updatedDislikes = [...post.dislikes];
     
     if (updatedDislikes.includes(userData.uid)) {
-      // 🔥 이미 싫어요 → 싫어요 취소
+      // 이미 싫어요 → 싫어요 취소
       updatedDislikes = updatedDislikes.filter((uid) => uid !== userData.uid);
     } else {
-      // 👎 싫어요 추가 (좋아요 되어있으면 취소)
+      // 싫어요 추가 (좋아요 되어있으면 취소)
       updatedDislikes.push(userData.uid);
       updatedLikes = updatedLikes.filter((uid) => uid !== userData.uid);
     }
@@ -139,11 +140,11 @@ export default function PostDetailPage() {
     setLoading(false);
   };
 
-  // 🔹 좋아요/싫어요 여부 확인
+  // 좋아요/싫어요 여부 확인
   const isLiked = post?.likes.includes(userData?.uid || "");
   const isDisliked = post?.dislikes.includes(userData?.uid || "");
 
-  // 🔹 게시글 삭제 (본인만 가능)
+  // 게시글 삭제 (본인만 가능)
   const handleDelete = async () => {
     if (!id || !post) return;
     if (!(post.authorUid === userData?.uid || userData?.admin === true)) return alert("삭제 권한이 없습니다.");
@@ -152,10 +153,10 @@ export default function PostDetailPage() {
     setLoading(true);
   
     try {
-      // 🔥 Firestore에서 이미지 URL 목록 가져오기
-      const imageUrls = post.images || []; // 📌 Firestore에서 저장된 이미지 목록 가져오기
+      // Firestore에서 이미지 URL 목록 가져오기
+      const imageUrls = post.images || []; // Firestore에서 저장된 이미지 목록 가져오기
   
-      // 🔥 Firebase Storage에서 이미지 삭제
+      // Firebase Storage에서 이미지 삭제
       for (const url of imageUrls) {
         try {
           const imageRef = ref(storage, url);
@@ -166,7 +167,7 @@ export default function PostDetailPage() {
         }
       }
   
-      // 🔥 Firestore에서 게시글 삭제
+      // Firestore에서 게시글 삭제
       await deleteDoc(doc(db, "free_board", id as string));
   
       alert("게시글이 삭제되었습니다.");
@@ -178,7 +179,7 @@ export default function PostDetailPage() {
     }
   };
 
-  // 🔹 댓글 작성
+  // 댓글 작성
   const handleAddComment = async () => {
     if (!userData || !post) return alert("로그인이 필요합니다.");
     if (!newComment.trim()) return;
@@ -211,7 +212,7 @@ export default function PostDetailPage() {
     }
   };
 
-  // 🔹 댓글 수정
+  // 댓글 수정
   const handleEditComment = async (commentId: string) => {
     if (!post || !userData) return;
     const postRef = doc(db, "free_board", id as string);
@@ -237,13 +238,13 @@ export default function PostDetailPage() {
     setLoading(false);
   };
 
-  // 🔹 수정 취소
+  // 수정 취소
   const handleCancelEdit = () => {
     setEditCommentId(null);
     setEditCommentText("");
   };
   
-  // 🔹 댓글 삭제
+  // 댓글 삭제
   const handleDeleteComment = async (commentId: string) => {
     if (!post || !userData) return;
     const postRef = doc(db, "free_board", id as string);
@@ -264,7 +265,7 @@ export default function PostDetailPage() {
 
   if (!post) return <p>게시글이 없습니다.</p>;
 
-  // 🔥 유저 정보 가져오기
+  // 유저 정보 가져오기
   const author = users[post.authorUid] || { name: "알 수 없음", picture: "/default-profile.png" };
   const isAdmin = userData?.admin === true;
   const canEdit = post.authorUid === userData?.uid || isAdmin;
@@ -273,14 +274,14 @@ export default function PostDetailPage() {
     <div className="max-w-6xl mx-auto p-6 bg-gray-900 text-white rounded-lg shadow-lg">
       {loading && <LoadingModal />}
 
-      {/* 🔹 제목 */}
+      {/* 제목 */}
       <h1 className="text-3xl font-bold">{post.title}</h1>
 
       <hr className="my-6 opacity-30" />
 
-      {/* 🔹 작성자 & 조회수 */}
+      {/* 작성자 & 조회수 */}
       <div className="flex items-center gap-3 text-gray-400 mt-8">
-        <img src={author.picture} className="w-36 h-36 rounded-xl" />
+        <img src={author.picture} alt="user picture" className="w-36 h-36 rounded-xl" />
         <div className="ml-4">
           <div className="mb-4">
             <span className="text-xl text-white">{author.name}</span>
@@ -303,15 +304,15 @@ export default function PostDetailPage() {
 
       <hr className="my-6 opacity-30" />
 
-      {/* 🔹 게시글 본문 */}
+      {/* 게시글 본문 */}
       <div className="mt-12 text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: post.content }} />
 
-      {/* 🔹 댓글 목록 */}
+      {/* 댓글 목록 */}
       <div className="mt-8">
         <div className="flex items-center">
           <h2 className="py-4 text-xl font-bold">댓글 ({post.comments.length})</h2>
 
-          {/* 🔹 좋아요, 싫어요 버튼 */}
+          {/* 좋아요, 싫어요 버튼 */}
           <div className="flex items-center space-x-4">
             <button onClick={handleLike} className="flex items-center px-3 py-2">
               <ThumbsUp className={`w-6 h-6 ${isLiked ? "fill-blue-500 stroke-blue-500" : "stroke-white"}`} />
@@ -332,7 +333,7 @@ export default function PostDetailPage() {
           return (
             <div key={comment.id} className="border-t border-gray-700 py-6">
               <div className="flex items-start gap-2">
-                <img src={commentAuthor.picture} className="w-28 h-28 rounded-lg mr-4" />
+                <img src={commentAuthor.picture} alt="user picture" className="w-28 h-28 rounded-lg mr-4" />
                 <div className="flex-1">
                   <p className="font-bold">
                     {commentAuthor.name} 
@@ -374,7 +375,7 @@ export default function PostDetailPage() {
         })}
       </div>
 
-      {/* 🔹 댓글 입력 */}
+      {/* 댓글 입력 */}
       <textarea
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}

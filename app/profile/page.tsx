@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
 
-  // 🔹 프로필 이미지 선택 시 미리보기 적용
+  // 프로필 이미지 선택 시 미리보기 적용
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -27,7 +27,7 @@ export default function ProfilePage() {
     }
   };
 
-  // 🔹 Storage에서 선택한 이미지로 변경 & DB 반영
+  // Storage에서 선택한 이미지로 변경 & DB 반영
   const handleSelectImage = async (imageUrl: string) => {
     if (!userData) return;
 
@@ -36,7 +36,7 @@ export default function ProfilePage() {
       const updatedUserData = { ...userData, picture: imageUrl };
 
       await updateDoc(doc(db, "users", userData.uid), updatedUserData);
-      setUserData(updatedUserData); // 🔹 로컬 상태 업데이트
+      setUserData(updatedUserData); // 로컬 상태 업데이트
       setPreview(imageUrl);
       setPicture(null);
       setShowPicker(false); // 모달 닫기
@@ -47,7 +47,7 @@ export default function ProfilePage() {
     }
   };
 
-  // 🔹 프로필 업데이트 (이름 및 업로드한 사진)
+  // 프로필 업데이트 (이름 및 업로드한 사진)
   const handleUpdateProfile = async () => {
     if (!userData) return;
     setLoading(true);
@@ -55,7 +55,7 @@ export default function ProfilePage() {
     try {
       let pictureUrl = userData.picture;
 
-      // 🔹 새로운 파일 업로드
+      // 새로운 파일 업로드
       if (picture) {
         const imageRef = ref(storage, `profilePictures/${userData.uid}`);
         await uploadBytes(imageRef, picture);
@@ -69,7 +69,7 @@ export default function ProfilePage() {
       };
 
       await updateDoc(doc(db, "users", userData.uid), updatedUserData);
-      setUserData(updatedUserData); // 🔹 로컬 상태 업데이트
+      setUserData(updatedUserData); // 로컬 상태 업데이트
 
       alert("프로필이 업데이트되었습니다.");
     } catch (error) {
@@ -79,7 +79,7 @@ export default function ProfilePage() {
     }
   };
 
-  // 🔹 비밀번호 변경
+  // 비밀번호 변경
   const handleUpdatePassword = async () => {
     if (!password) return alert("변경할 비밀번호를 입력하세요.");
     setLoading(true);
@@ -102,7 +102,7 @@ export default function ProfilePage() {
 
       <h1 className="text-2xl font-bold text-gold mb-4 text-center">내 정보</h1>
 
-      {/* 🔹 프로필 이미지 미리보기 */}
+      {/* 프로필 이미지 미리보기 */}
       <div className="flex flex-col items-center mb-4 relative">
         <div className="relative w-24 h-24">
           <img
@@ -113,7 +113,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* 🔹 이미지 업로드 & 불러오기 버튼 */}
+      {/* 이미지 업로드 & 불러오기 버튼 */}
       <div className="flex gap-4 justify-center mb-4">
         <label className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-500 transition">
           업로드
@@ -132,7 +132,7 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* 🔹 이름 변경 */}
+      {/* 이름 변경 */}
       <div className="mb-4">
         <label className="block text-gray-400 mb-1">이름</label>
         <input
@@ -152,7 +152,7 @@ export default function ProfilePage() {
 
       <hr className="my-6 border-gray-600" />
 
-      {/* 🔹 비밀번호 변경 */}
+      {/* 비밀번호 변경 */}
       <div className="mb-4">
         <label className="block text-gray-400 mb-1">새 비밀번호</label>
         <input
@@ -171,7 +171,7 @@ export default function ProfilePage() {
         비밀번호 변경
       </button>
 
-      {/* 🔹 프로필 이미지 선택 모달 */}
+      {/* 프로필 이미지 선택 모달 */}
       {showPicker && <ImagePicker onSelect={handleSelectImage} onClose={() => setShowPicker(false)} />}
     </div>
   );

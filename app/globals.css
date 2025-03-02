@@ -24,7 +24,7 @@ body {
 }
 
 a {
-  color: #007bff !important; /* 🔥 링크 스타일 파란색 */
-  text-decoration: underline !important; /* 🔥 밑줄 */
-  cursor: pointer !important; /* 🔥 마우스 오버 시 포인터 */
+  color: #007bff !important; /* 링크 스타일 파란색 */
+  text-decoration: underline !important; /* 밑줄 */
+  cursor: pointer !important; /* 마우스 오버 시 포인터 */
 }

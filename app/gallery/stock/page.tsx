@@ -15,7 +15,7 @@ export default function GalleryStock() {
   const [selectedFolder, setSelectedFolder] = useState<string>("");
   const [newFolder, setNewFolder] = useState<string>("");
 
-  // 🔹 저장소 폴더 가져오기
+  // 저장소 폴더 가져오기
   useEffect(() => {
     const fetchGallery = async () => {
       setIsLoading(true);
@@ -27,7 +27,7 @@ export default function GalleryStock() {
     fetchGallery();
   }, []);
 
-  // 🔹 폴더별 토글 기능
+  // 폴더별 토글 기능
   const handleToggle = (folder: string) => {
     setExpandedFolders((prev) => ({
       ...prev,
@@ -35,7 +35,7 @@ export default function GalleryStock() {
     }));
   };
 
-  // 🔹 이미지 업로드 핸들러
+  // 이미지 업로드 핸들러
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || !selectedFolder) {
       alert("📂 업로드할 폴더를 선택해주세요.");
@@ -68,7 +68,7 @@ export default function GalleryStock() {
     setIsLoading(false);
   };
 
-  // 🔹 새 폴더 추가 핸들러
+  // 새 폴더 추가 핸들러
   const handleAddFolder = () => {
     if (!newFolder.trim()) return;
     if (gallery.some((folder) => folder.folder === newFolder)) {
@@ -88,7 +88,7 @@ export default function GalleryStock() {
       <h1 className="text-2xl font-bold mb-4">갤러리 저장소</h1>
       <div className="flex justify-between items-center mb-6">
 
-        {/* 🔹 폴더 선택 및 업로드 */}
+        {/* 폴더 선택 및 업로드 */}
         <div className="ml-auto flex flex-col md:flex-row gap-4 items-center space-x-4">
 
           <div className="flex gap-2">
@@ -104,7 +104,7 @@ export default function GalleryStock() {
             </button>
           </div>
 
-          {/* 🔹 폴더 선택 업로드 */}
+          {/* 폴더 선택 업로드 */}
           <div className="flex gap-2">
             <select
               value={selectedFolder}
@@ -126,11 +126,11 @@ export default function GalleryStock() {
         </div>
       </div>
 
-      {/* 🔹 저장소 리스트 */}
+      {/* 저장소 리스트 */}
       <div className="space-y-6">
         {gallery.map(({ folder, images }) => (
           <div key={folder} className="border border-gray-700 p-4 rounded-lg">
-            {/* 🔹 폴더 클릭 시 이미지 리스트 토글 */}
+            {/* 폴더 클릭 시 이미지 리스트 토글 */}
             <h2
               className={`text-2xl font-semibold mb-2 cursor-pointer hover:text-yellow-400 ${
                 expandedFolders[folder] ? "text-yellow-500" : "text-gray-300"
@@ -161,7 +161,7 @@ export default function GalleryStock() {
         ))}
       </div>
 
-      {/* 🔹 선택된 이미지가 있을 경우 모달 표시 */}
+      {/* 선택된 이미지가 있을 경우 모달 표시 */}
       {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
     </div>
   );
