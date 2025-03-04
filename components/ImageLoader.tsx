@@ -124,6 +124,8 @@ export default function ImageLoader({ character, onClose, setImages }: ImageLoad
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center">
+      {loading && <LoadingModal />}
+
       <div className="bg-gray-800 p-6 rounded-lg text-white shadow-lg w-full h-full flex flex-col">
         <h2 className="text-xl font-semibold mb-4">폴더 선택 후 이미지를 불러오세요</h2>
 
