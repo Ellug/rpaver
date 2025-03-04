@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       const oldFilePath = oldPath.replace(/^\/+/, "");
       const newFilePath = newPath.replace(/^\/+/, "");
 
-      console.log(`📡 파일 이동 요청: ${oldFilePath} → ${newFilePath}`);
+      console.log(`📡 파일 복사 요청: ${oldFilePath} → ${newFilePath}`);
 
       const oldFile = bucket.file(oldFilePath);
       const newFile = bucket.file(newFilePath);
@@ -23,13 +23,12 @@ export async function POST(req: Request) {
       const [exists] = await oldFile.exists();
       if (exists) {
         await oldFile.copy(newFile);
-        await oldFile.delete();
       } else {
         console.warn(`⚠️ 파일 없음: ${oldFilePath}`);
       }
     }
 
-    return NextResponse.json({ success: true, message: "파일 이동 완료" });
+    return NextResponse.json({ success: true, message: "파일 복사 완료" });
   } catch (error) {
     console.error("🔥 파일 이동 오류:", error);
     return NextResponse.json({ success: false, error: "서버 오류 발생" }, { status: 500 });

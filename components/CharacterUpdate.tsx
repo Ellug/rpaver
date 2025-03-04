@@ -215,14 +215,14 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           ))}
         </div>
 
-        <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} className="p-2 bg-gray-700 rounded-md h-80" />
+        <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} onTouchStart={(e) => e.stopPropagation()} className="p-2 bg-gray-700 rounded-md h-80" />
 
         <button type="submit" className="p-2 bg-blue-600 rounded-md hover:bg-blue-500">
           {isEdit ? "수정하기" : "등록하기"}
         </button>
 
         {/* ImageLoader 컴포넌트 렌더링 */}
-        {showImageLoader && <ImageLoader character={formData} onClose={() => setShowImageLoader(false)} />}
+        {showImageLoader && <ImageLoader character={formData} onClose={() => setShowImageLoader(false)} setImages={setImageUrls} />}
       </form>
     </div>
   );

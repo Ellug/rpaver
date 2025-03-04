@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import LoadingModal from "./LoadingModal";
 import { formatCharacterName } from "@/utils/NameFilter";
 import { fetchFoldersFromStorage, fetchImagesFromStorage } from "@/utils/Storage";
+import { getDownloadURL, ref } from "firebase/storage";
+import { storage } from "@/libs/firebaseConfig";
 
 type ImageLoaderProps = {
   character: {
@@ -11,9 +13,10 @@ type ImageLoaderProps = {
     family?: string;
   };
   onClose: () => void;
+  setImages: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
-export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
+export default function ImageLoader({ character, onClose, setImages }: ImageLoaderProps) {
   const [folders, setFolders] = useState<string[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string>("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -65,35 +68,47 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
       alert("📌 이동할 이미지를 선택해주세요.");
       return;
     }
-
+  
     if (!character.name) {
       alert("캐릭터 이름이 없으면 불러올 수 없습니다.");
       return;
     }
-
+  
     setLoading(true);
     try {
       const formattedName = formatCharacterName(character.name, character.family);
-
+  
       const oldPaths = selectedImages.map((url) => {
         const fileName = url.split("%2F").pop()?.split("?")[0];
         return {
           oldPath: `imgStock/${selectedFolder}/${fileName}`,
           newPath: `charactersIMG/${formattedName}/${fileName}`,
+          fileName: fileName, // 파일명 저장
         };
       });
-
-      const response = await fetch("/api/moveFile", {
+  
+      const response = await fetch("/api/copyFile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ files: oldPaths }),
       });
-
+  
       const result = await response.json();
       if (result.success) {
         alert("✅ 이미지가 정상적으로 이동되었습니다.");
+  
+        // 업데이트된 스토리지 이미지로 갱신
+        const newUrls = await Promise.all(
+          oldPaths.map(async (file) => {
+            const fileRef = ref(storage, file.newPath);
+            return await getDownloadURL(fileRef);
+          })
+        );
+  
+        setImages((pre) => [...pre, ...newUrls]);
+  
         onClose();
       } else {
         alert(`⚠️ 이동 실패: ${result.error}`);
@@ -105,6 +120,7 @@ export default function ImageLoader({ character, onClose }: ImageLoaderProps) {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center">
