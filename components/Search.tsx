@@ -12,7 +12,7 @@ const categories = [
   // { name: "아이템", value: "items" },
   // { name: "히스토리", value: "history" },
   // { name: "설정", value: "worldset" },
-  // { name: "갤러리", value: "gallery" },
+  { name: "갤러리", value: "gallery" },
 ];
 
 // ✅ `setHoveredCategory`를 `props`로 추가!

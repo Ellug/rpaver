@@ -6,6 +6,7 @@ import { useCharacterContext } from "@/contexts/CharacterContext";
 import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 export default function CharacterGallery() {
   const router = useRouter();
@@ -49,6 +50,17 @@ export default function CharacterGallery() {
       setShowCharacterList(false); // 목록 닫기
     }
   };
+
+  // 페이지 맨 위로 이동
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // 페이지 맨 아래로 이동
+  const scrollToBottom = () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
+  
 
   return (
     <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-7xl mx-auto relative">
@@ -97,7 +109,23 @@ export default function CharacterGallery() {
         {/* 캐릭터 리스트 팝업 */}
         {showCharacterList && (
           <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg w-xl max-h-[400px] md:max-h-[600px] overflow-y-auto transform transition-all duration-300">
-            <h3 className="text-lg font-bold mb-2">캐릭터 목록</h3>
+                        <h3 className="text-lg font-bold mb-2 flex justify-between items-center">
+              캐릭터 목록
+              <div className="flex space-x-2">
+                <button
+                  onClick={scrollToTop}
+                  className="p-1 bg-gray-700 rounded-md hover:bg-gray-600 transition"
+                >
+                  <ArrowUp size={18} />
+                </button>
+                <button
+                  onClick={scrollToBottom}
+                  className="p-1 bg-gray-700 rounded-md hover:bg-gray-600 transition"
+                >
+                  <ArrowDown size={18} />
+                </button>
+              </div>
+            </h3>
             <div className="grid grid-cols-2 gap-2">
               {gallery.map(({ folder }) => (
                 <button

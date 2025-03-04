@@ -39,6 +39,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
 
   const [loading, setLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isHelpVisible, setIsHelpVisible] = useState(false)
 
   // 🔹 기존 캐릭터 이미지 불러오기 (Storage)
   useEffect(() => {
@@ -141,7 +142,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-4 p-6 bg-gray-900 text-white rounded-lg shadow-lg">
+    <div className="max-w-6xl mx-auto mt-4 p-6 bg-gray-900 text-white rounded-lg shadow-lg">
       {loading && <LoadingModal />}
 
       <form onSubmit={handleSubmit} autoComplete="new-password" className="flex flex-col gap-4">
@@ -214,6 +215,29 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
             </div>
           ))}
         </div>
+
+        {/* 텍스트 포맷 도움말 필드 */}
+        <button
+          type="button"
+          onClick={() => setIsHelpVisible(!isHelpVisible)}
+          className="mt-2 bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
+        >
+          {isHelpVisible ? "📌 도움말 닫기" : "📌 텍스트 포맷 도움말"}
+        </button>
+
+        {/* 텍스트 포맷 도움말 필드 (토글 가능) */}
+        {isHelpVisible && (
+          <div className="bg-gray-800 p-4 rounded-lg text-white text-sm mt-2">
+            <ul className="list-inside space-y-2">
+              <li><code>**타이틀 텍스트**</code> → <span className="text-white font-bold text-2xl">타이틀 텍스트</span></li>
+              <li><code>*골드 텍스트*</code> → <span className="text-gold">골드 텍스트</span></li>
+              <li><code>!!빨간색 강조!!</code> → <span className="text-red-500">빨간색 강조</span></li>
+              <li><code>##초록색 강조##</code> → <span className="text-green-500 font-bold">초록색 강조</span></li>
+              <li><code>@@{`{캐릭터 이름}`}</code>@@ → <span className="text-blue-400 hover:underline font-bold">캐릭터 링크</span></li>
+              <li><code>---</code> → 구분선</li>
+            </ul>
+          </div>
+        )}
 
         <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} onTouchStart={(e) => e.stopPropagation()} className="p-2 bg-gray-700 rounded-md h-80" />
 

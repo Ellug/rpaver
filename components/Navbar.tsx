@@ -90,37 +90,52 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* 우측: 유저 정보 (프로필) */}
+        {/* 우측: 로그인 / 유저 정보 */}
         <div ref={dropdownRef} className="relative z-50">
-          <div
-            className="flex items-center gap-2 cursor-pointer hover:scale-[1.05] transition"
-            onClick={() => setDropdownOpen((prev) => !prev)}
-          >
-            <span className="hidden md:block text-sm text-gray-300">{userData?.name || "-"}</span>
-            <img
-              src={userData?.picture || "https://firebasestorage.googleapis.com/v0/b/rp-encyclopedia.appspot.com/o/profilePictures%2FYDW4AGtVZNNxOYznMc2m0DFoxlF2?alt=media&token=248ffc43-c07a-4e88-98e6-713c8394bb33"}
-              alt="프로필"
-              className="rounded-full w-10 border border-white/20 aspect-square object-cover"
-            />
-          </div>
-
-          {/* 드롭다운 메뉴 */}
-          <div className={`absolute right-0 mt-2 w-40 bg-gray-800 border border-white/10 rounded-lg shadow-lg z-50 transition-all duration-300
-            ${isDropdownOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
-          >
-            {profileMenus.map((menu, index) => (
-              <div
-                key={index}
-                className="px-4 py-2 text-sm hover:bg-gray-700 cursor-pointer transition"
-                onClick={() => { 
-                  menu.action(); 
-                  setDropdownOpen(false);
-                }}
-              >
-                {menu.label}
+          {userData ? (
+            // ✅ 로그인 상태 → 프로필 드롭다운
+            <div
+              className="flex items-center gap-2 cursor-pointer hover:scale-[1.05] transition"
+              onClick={() => setDropdownOpen((prev) => !prev)}
+            >
+              <span className="hidden md:block text-sm text-gray-300">{userData?.name || "-"}</span>
+              <img
+                src={userData?.picture || "https://firebasestorage.googleapis.com/v0/b/rp-encyclopedia.appspot.com/o/profilePictures%2FYDW4AGtVZNNxOYznMc2m0DFoxlF2?alt=media&token=248ffc43-c07a-4e88-98e6-713c8394bb33"}
+                alt="프로필"
+                className="rounded-full w-10 border border-white/20 aspect-square object-cover"
+              />
+            </div>
+          ) : (
+            // ✅ 로그아웃 상태 → 로그인 버튼 (그라데이션 테두리)
+            <button
+              onClick={() => router.push("/login")}
+              className="relative bg-gradient-to-r from-blue-500 to-purple-500 p-[2px] rounded-lg hover:scale-[1.05] transition"
+            >
+              <div className="bg-black text-white px-5 py-2 rounded-md text-sm font-semibold">
+                로그인
               </div>
-            ))}
-          </div>
+            </button>
+          )}
+
+          {/* 드롭다운 메뉴 (로그인 상태에서만 표시) */}
+          {userData && (
+            <div className={`absolute right-0 mt-2 w-40 bg-gray-800 border border-white/10 rounded-lg shadow-lg z-50 transition-all duration-300
+              ${isDropdownOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
+            >
+              {profileMenus.map((menu, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-2 text-sm hover:bg-gray-700 cursor-pointer transition"
+                  onClick={() => { 
+                    menu.action(); 
+                    setDropdownOpen(false);
+                  }}
+                >
+                  {menu.label}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

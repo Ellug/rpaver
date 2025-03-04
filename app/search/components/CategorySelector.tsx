@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 const categories = [
   // { name: "전체", value: "all" },
@@ -9,16 +9,17 @@ const categories = [
   // { name: "아이템", value: "items" },
   // { name: "히스토리", value: "history" },
   // { name: "설정", value: "worldset" },
-  // { name: "갤러리", value: "gallery" },
+  { name: "갤러리", value: "gallery" },
 ];
 
 export default function CategorySelector({ currentCategory }: { currentCategory: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryText = searchParams.get("query") || "";
+  const params = useParams();
+  const queryText = params.query as string;
 
   const handleCategoryChange = (value: string) => {
-    router.push(`/search/${encodeURIComponent(queryText)}?category=${encodeURIComponent(value)}`);
+    if (!queryText) return;
+    router.push(`/search/${queryText}?category=${value}`);
   };
 
   return (

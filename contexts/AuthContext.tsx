@@ -3,7 +3,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { auth, db } from "@/libs/firebaseConfig";
 import { signInWithEmailAndPassword, signOut, User } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, Timestamp, FieldValue } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
 
@@ -12,8 +12,8 @@ interface UserData {
   email: string;
   name: string;
   picture?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  created: any;
+  created: Timestamp | FieldValue;
+  lastLogin: Timestamp | FieldValue;
   admin: boolean;
 }
 
@@ -65,17 +65,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
-        // 기존 유저 데이터 불러오기
-        setUserData(userSnap.data() as UserData);
+        // 기존 유저 데이터 불러오기 & lastLogin 업데이트
+        const existingUserData = userSnap.data() as UserData;
+        await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
+
+        setUserData({ ...existingUserData, lastLogin: Timestamp.now(), }); // UI에도 반영
       } else {
-        // 새 유저 데이터 생성
+        // 새 유저 데이터 생성 (lastLogin 포함)
         const newUserData: UserData = {
           uid: user.uid,
           email: user.email || "",
-          name: user.email?.split("@")[0] || "New User", // 기본 이름: 이메일 앞부분
+          name: user.email?.split("@")[0] || "New User",
           picture: "",
-          created: serverTimestamp(), // Firebase Timestamp (한국 시간 기준)
-          admin: false
+          created: serverTimestamp(),
+          lastLogin: serverTimestamp(),
+          admin: false,
         };
 
         await setDoc(userRef, newUserData);

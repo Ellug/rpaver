@@ -177,7 +177,7 @@ export default function FileManager() {
 
   return (
     <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg max-w-4xl mx-auto">
-      {isLoading && <LoadingModal />} {/* 로딩 중일 때 모달 표시 */}
+      {isLoading && <LoadingModal />}
 
       <h1 className="text-2xl font-bold mb-4">📁 파일 관리자</h1>
 

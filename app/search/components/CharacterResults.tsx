@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/libs/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import LoadingModal from "@/components/LoadingModal";
 
 export default function CharacterResults({ queryText }: { queryText: string }) {
   const [results, setResults] = useState<CharacterDetail[]>([]);
@@ -18,15 +19,30 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
 
       try {
         const snapshot = await getDocs(collection(db, "character_detail"));
+        const searchTerms = queryText.trim().toLowerCase().split(/\s+/); // 검색어를 공백 기준으로 분할
+
         const searchResults: CharacterDetail[] = snapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((data) =>
-            Object.values(data).some(
-              (value) =>
-                typeof value === "string" &&
-                value.toLowerCase().includes(queryText.toLowerCase())
-            )
-          );
+        .map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as CharacterDetail), // Firestore 데이터를 CharacterDetail 타입으로 변환
+        }))
+          .filter((data) => {
+            const fieldValues = [
+              data.name?.toLowerCase() || "",
+              data.family?.toLowerCase() || "",
+              data.title?.toLowerCase() || "",
+              data.country?.toLowerCase() || "",
+              data.party?.toLowerCase() || "",
+              data.hobby?.toLowerCase() || "",
+              data.weapon?.toLowerCase() || "",
+              data.talent?.toLowerCase() || "",
+              data.skill?.toLowerCase() || "",
+              data.detail?.toLowerCase() || "",
+            ].join(" "); // 모든 필드를 하나의 문자열로 결합
+
+            // 모든 검색어 단어(searchTerms)가 결합된 필드 값(fieldValues)에 포함되는지 확인
+            return searchTerms.every((term) => fieldValues.includes(term));
+          });
 
         setResults(searchResults);
       } catch (error) {
@@ -70,7 +86,6 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
     
     return highlightText(snippet);
   };
-  
 
   // 렌더링할 필드 배열 (기본 정보)
   const infoFields = [
@@ -86,7 +101,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
   return (
     <div className="text-white">
       {loading ? (
-        <p>검색 중...</p>
+        <LoadingModal />
       ) : results.length === 0 ? (
         <p>검색 결과가 없습니다.</p>
       ) : (
@@ -98,7 +113,7 @@ export default function CharacterResults({ queryText }: { queryText: string }) {
                          hover:bg-gray-900 hover:bg-opacity-70 transition cursor-pointer"
               onClick={() => router.push(`/board/character/detail/${item.id}`)}
             >
-              {/* 캐릭터 정보 */}
+              {/* 캐릭터 정보 */} 
               <h3
                 className="text-2xl font-bold mb-4"
                 dangerouslySetInnerHTML={{
