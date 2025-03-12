@@ -36,7 +36,7 @@ export default function CharacterPage() {
   const { characters } = useCharacterContext();
   const [sortedCharacters, setSortedCharacters] = useState<Character[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [currentYear, setCurrentYear] = useState<string>("52");
+  const [currentYear, setCurrentYear] = useState<string>("552");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState<SortKey | "birth">("birth");
 
