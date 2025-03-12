@@ -10,7 +10,7 @@ const categories = [
   // { name: "자유", value: "free" },
   { name: "캐릭터", value: "character" },
   // { name: "아이템", value: "items" },
-  // { name: "히스토리", value: "history" },
+  { name: "히스토리", value: "history" },
   // { name: "설정", value: "worldset" },
   { name: "갤러리", value: "gallery" },
 ];
@@ -36,7 +36,7 @@ export default function Search({ setHoveredCategory }: { setHoveredCategory?: (c
       {/* 카테고리 선택 드롭다운 */}
       <div className="relative">
         <button
-          className="flex w-24 items-center gap-2 px-3 py-1 text-gray-700 bg-white rounded-l-full hover:bg-gray-100 focus:outline-none"
+          className="flex w-28 items-center gap-2 px-3 py-1 text-gray-700 bg-white rounded-l-full hover:bg-gray-100 focus:outline-none"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           {selectedCategory.name} <ChevronDown className="w-4 h-4" />

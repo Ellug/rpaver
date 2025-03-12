@@ -5,9 +5,9 @@ import { useState, useEffect } from "react";
 import CategorySelector from "../components/CategorySelector";
 import CharacterResults from "../components/CharacterResults";
 // import ItemSearchResults from "./ItemSearchResults";
-// import HistorySearchResults from "./HistorySearchResults";
 // import WorldSetSearchResults from "./WorldSetSearchResults";
 import GalleryResults from "../components/GalleryResults";
+import HistoryResults from "../components/HistoryResults";
 
 
 export default function SearchResults() {
@@ -30,7 +30,7 @@ export default function SearchResults() {
       {/* 선택된 카테고리에 따라 다른 결과 컴포넌트 렌더링 */}
       {categoryValue === "character" && <CharacterResults queryText={queryText} />}
       {/* categoryValue === "items" && <ItemSearchResults queryText={queryText} /> */}
-      {/* categoryValue === "history" && <HistorySearchResults queryText={queryText} /> */}
+      {categoryValue === "history" && <HistoryResults queryText={queryText} />}
       {/* categoryValue === "worldset" && <WorldSetSearchResults queryText={queryText} /> */}
       {categoryValue === "gallery" && <GalleryResults queryText={queryText} />}
     </div>

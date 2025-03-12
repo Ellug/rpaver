@@ -7,10 +7,12 @@ import { db } from "@/libs/firebaseConfig";
 interface SideMenuProps {
   documents: HistoryDocType[];
   onSelect: (id: number) => void;
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
 }
 
-const SideMenu: React.FC<SideMenuProps> = ({ documents, onSelect }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+const SideMenu: React.FC<SideMenuProps> = ({ documents, onSelect, selectedCategory, setSelectedCategory }) => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"date" | "title">("date"); // 🔄 날짜/제목 토글 상태
 
@@ -40,7 +42,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ documents, onSelect }) => {
 
     await setDoc(doc(db, "history_content", `content_${newId}`), {
       docId: newId,
-      line0001: "새문서",
+      content: "새문서",
     });
 
     console.log("새 문서 추가됨:", newId);

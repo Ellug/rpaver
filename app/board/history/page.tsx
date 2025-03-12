@@ -9,6 +9,7 @@ import { db } from "@/libs/firebaseConfig";
 const Page: React.FC = () => {
   const [documents, setDocuments] = useState<HistoryDocType[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   // Firestore 실시간 업데이트 감지 (history 컬렉션)
   useEffect(() => {
@@ -17,7 +18,7 @@ const Page: React.FC = () => {
         ...doc.data(),
       })) as HistoryDocType[];
 
-      console.log("Firestore에서 가져온 문서 목록:", docs);
+      // console.log("Firestore에서 가져온 문서 목록:", docs);
 
       setDocuments(docs);
     });
@@ -25,9 +26,20 @@ const Page: React.FC = () => {
     return () => unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
   }, []);
 
+  useEffect(() => {
+    const storedData = sessionStorage.getItem("selectedHistory");
+    const propsedData = storedData ? JSON.parse(storedData) : null;
+    if (propsedData) {
+      setSelectedId(propsedData.id);
+      setSelectedCategory(propsedData.date);
+  
+      sessionStorage.removeItem("selectedHistory"); 
+    }
+  }, []);
+
   return (
     <div className="flex h-[calc(100vh-130px)]">
-      <SideMenu documents={documents} onSelect={setSelectedId} />
+      <SideMenu documents={documents} onSelect={setSelectedId} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}  />
       <Editor document={documents.find((doc) => doc.id === selectedId) || null} />
     </div>
   );
