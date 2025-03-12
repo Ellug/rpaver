@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 import ImageLoader from "@/components/ImageLoader";
 import { fetchImagesFromStorage } from "@/utils/Storage";
+import FormatGuide from "./FormateGuide";
 
 export default function CharacterUpdate({ character, isEdit = false }: { character?: CharacterDetail; isEdit?: boolean }) {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
 
   const [loading, setLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [isHelpVisible, setIsHelpVisible] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
 
   // 🔹 기존 캐릭터 이미지 불러오기 (Storage)
   useEffect(() => {
@@ -193,7 +194,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
             { label: "신체", name: "body" },
             { label: "유닛", name: "unit" },
             { label: "무기", name: "weapon" },
-            { label: "능력", name: "skill" },
+            { label: "스킬", name: "skill" },
             { label: "특기", name: "talent" },
             { label: "취미", name: "hobby" },
             { label: "성우", name: "voice" },
@@ -216,28 +217,20 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           ))}
         </div>
 
-        {/* 텍스트 포맷 도움말 필드 */}
-        <button
-          type="button"
-          onClick={() => setIsHelpVisible(!isHelpVisible)}
-          className="mt-2 bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
-        >
-          {isHelpVisible ? "📌 도움말 닫기" : "📌 텍스트 포맷 도움말"}
-        </button>
-
-        {/* 텍스트 포맷 도움말 필드 (토글 가능) */}
-        {isHelpVisible && (
-          <div className="bg-gray-800 p-4 rounded-lg text-white text-sm mt-2">
-            <ul className="list-inside space-y-2">
-              <li><code>**타이틀 텍스트**</code> → <span className="text-white font-bold text-2xl">타이틀 텍스트</span></li>
-              <li><code>*골드 텍스트*</code> → <span className="text-gold">골드 텍스트</span></li>
-              <li><code>!!빨간색 강조!!</code> → <span className="text-red-500">빨간색 강조</span></li>
-              <li><code>##초록색 강조##</code> → <span className="text-green-500 font-bold">초록색 강조</span></li>
-              <li><code>@@{`{캐릭터 이름}`}</code>@@ → <span className="text-blue-400 hover:underline font-bold">캐릭터 링크</span></li>
-              <li><code>---</code> → 구분선</li>
-            </ul>
+        {/* 우측: 버튼 그룹 */}
+        <div className="flex flex-col items-end gap-4">
+          {/* 도움말 버튼 */}
+          <div className="relative">
+            <button
+              type="button"
+              className="px-3 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-600"
+              onClick={() => setShowHelp(!showHelp)}
+            >
+              {showHelp ? "도움말 닫기" : "도움말"}
+            </button>
+            {showHelp && <FormatGuide show={showHelp} onClose={() => setShowHelp(false)} />}
           </div>
-        )}
+        </div>
 
         <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} onTouchStart={(e) => e.stopPropagation()} className="p-2 bg-gray-700 rounded-md h-80" />
 

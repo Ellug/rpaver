@@ -29,8 +29,8 @@ export function CharacterProvider({ children }: { children: React.ReactNode }) {
         char.family ? `${char.name} ${char.family}` : char.name
       );
 
-      console.log("✅ 불러온 캐릭터 데이터:", characterList);
-      console.log("✅ 불러온 캐릭터 이름 리스트:", nameList);
+      // console.log("✅ 불러온 캐릭터 데이터:", characterList);
+      // console.log("✅ 불러온 캐릭터 이름 리스트:", nameList);
 
       setCharacters(characterList);
       setCharacterNames(nameList);

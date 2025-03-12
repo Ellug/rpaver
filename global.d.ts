@@ -44,6 +44,16 @@ declare global {
     value: string;
   }
 
+  export interface HistoryDocType {
+    id: number;
+    date: string;
+    title: string;
+    content: string;
+    updatedAt: string;
+    createdAt: string;
+  }
+  
+
   type HighlightFunction = (text: string | undefined) => string;
 }
 

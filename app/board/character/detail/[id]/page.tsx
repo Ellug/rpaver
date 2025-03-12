@@ -128,7 +128,7 @@ export default function CharacterDetailPage() {
           { label: "신체", value: character.body },
           { label: "유닛", value: character.unit },
           { label: "무기", value: character.weapon },
-          { label: "능력", value: character.skill },
+          { label: "스킬", value: character.skill },
           { label: "특기", value: character.talent },
           { label: "취미", value: character.hobby },
           { label: "성우", value: character.voice },

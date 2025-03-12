@@ -305,7 +305,13 @@ export default function PostDetailPage() {
       <hr className="my-6 opacity-30" />
 
       {/* 게시글 본문 */}
-      <div className="mt-12 text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: post.content }} />
+      <div
+        className="mt-12 text-lg whitespace-pre-wrap"
+        dangerouslySetInnerHTML={{
+          __html: post.content
+            .replace(/<p>\s*<\/p>/g, "<br>") // 🔥 빈 <p></p> 태그를 <br><br>로 변환
+        }}
+      />
 
       {/* 댓글 목록 */}
       <div className="mt-8">
