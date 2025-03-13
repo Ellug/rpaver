@@ -27,13 +27,13 @@ const Page: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const storedData = sessionStorage.getItem("selectedHistory");
+    const storedData = sessionStorage.getItem("selectedData");
     const propsedData = storedData ? JSON.parse(storedData) : null;
     if (propsedData) {
       setSelectedId(propsedData.id);
       setSelectedCategory(propsedData.date);
   
-      sessionStorage.removeItem("selectedHistory"); 
+      sessionStorage.removeItem("selectedData"); 
     }
   }, []);
 

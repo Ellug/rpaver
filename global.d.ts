@@ -37,6 +37,7 @@ declare global {
     party: string;
     skill: string;
     body: string;
+    series: string;
   };
 
   interface SearchCategory {

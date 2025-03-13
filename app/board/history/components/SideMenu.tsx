@@ -45,6 +45,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ documents, onSelect, selectedCatego
       content: "새문서",
     });
 
+    onSelect(newId); 
     console.log("새 문서 추가됨:", newId);
   };
 

@@ -39,6 +39,26 @@ export default function CharacterPage() {
   const [currentYear, setCurrentYear] = useState<string>("552");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState<SortKey | "birth">("birth");
+  const [selectedSeries, setSelectedSeries] = useState<string>("전체");
+
+  // 시리즈 목록 생성
+  const seriesList = React.useMemo(() => {
+    const seriesSet = new Set<string>();
+  
+    characters.forEach((char) => {
+      if (char.series) {
+        char.series.split(",").map((s) => seriesSet.add(s.trim()));
+      } else {
+        seriesSet.add("없음");
+      }
+    });
+  
+    // "전체"와 "없음"을 맨 위로, 나머지는 ㄱㄴㄷ 순으로 정렬
+    const sortedSeries = Array.from(seriesSet).filter(s => s !== "전체" && s !== "없음").sort((a, b) => a.localeCompare(b, "ko-KR"));
+    
+    return ["전체", "없음", ...sortedSeries];
+  }, [characters]);
+    
 
   useEffect(() => {
     sortCharacters(characters, sortKey, sortOrder);
@@ -64,25 +84,37 @@ export default function CharacterPage() {
       const aValues = extractBodyValues(a.body);
       const bValues = extractBodyValues(b.body);
   
-      const aValue: number | string | null = key === "birth" ? parseInt(a.birth || "0", 10) : aValues[key];
-      const bValue: number | string | null = key === "birth" ? parseInt(b.birth || "0", 10) : bValues[key];
+      const aValue: number | string | null = key === "birth" ? parseInt(a.birth || "", 10) : aValues[key];
+      const bValue: number | string | null = key === "birth" ? parseInt(b.birth || "", 10) : bValues[key];
   
-      // 가슴 크기 정렬 (없는 값은 맨 뒤로)
+      // 🔹 가슴 크기 정렬 (빈 값은 맨 뒤로)
       if (key === "chest") {
-        const aStr = aValue ? String(aValue) : ""; // 숫자가 들어가도 문자열로 변환
+        const aStr = aValue ? String(aValue) : ""; 
         const bStr = bValue ? String(bValue) : "";
   
-        if (!aStr) return 1; // aStr이 빈 값이면 bStr보다 뒤로 이동
-        if (!bStr) return -1; // bStr이 빈 값이면 aStr이 앞으로 이동
+        if (!aStr) return 1; // a가 빈 값이면 b보다 뒤로 이동
+        if (!bStr) return -1; // b가 빈 값이면 a보다 앞으로 이동
   
         return order === "desc" ? bStr.localeCompare(aStr) : aStr.localeCompare(bStr);
       }
   
-      return order === "desc" ? (bValue as number) - (aValue as number) : (aValue as number) - (bValue as number);
+      // 🔹 출생 연도 정렬 (숫자가 아닌 값은 항상 최하단으로)
+      if (key === "birth") {
+        const aIsInvalid = isNaN(aValue as number) || a.birth === "";
+        const bIsInvalid = isNaN(bValue as number) || b.birth === "";
+  
+        if (aIsInvalid && !bIsInvalid) return 1; // a가 빈 값이면 b보다 뒤로 이동
+        if (!aIsInvalid && bIsInvalid) return -1; // b가 빈 값이면 a보다 앞으로 이동
+        if (aIsInvalid && bIsInvalid) return 0; // 둘 다 빈 값이면 순서 유지
+      }
+  
+      return order === "desc"
+        ? (bValue as number) - (aValue as number)
+        : (aValue as number) - (bValue as number);
     });
   
     setSortedCharacters(sortedData);
-  };  
+  };
   
   const toggleSortOrder = (key: SortKey) => {
     const newOrder = sortKey === key && sortOrder === "desc" ? "asc" : "desc";
@@ -98,6 +130,11 @@ export default function CharacterPage() {
     if (/^\d*$/.test(inputValue)) {
       setCurrentYear(inputValue);
     }
+  };
+
+  // 시리즈 변경 핸들러
+  const handleSeriesChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSeries(event.target.value);
   };
 
   // 검색어 변경 핸들러
@@ -125,12 +162,21 @@ export default function CharacterPage() {
     );
   };
 
-  // 검색 필터링
-  const filteredCharacters = sortedCharacters.filter((char) =>
-    Object.values(char).some((value) =>
+  // 검색 & 시리즈 필터링
+  const filteredCharacters = sortedCharacters.filter((char) => {
+    const matchesSearch = Object.values(char).some((value) =>
       typeof value === "string" && value.toLowerCase().includes(searchTerm)
-    )
-  );
+    );
+
+    const matchesSeries =
+      selectedSeries === "전체"
+        ? true
+        : selectedSeries === "없음"
+        ? !char.series || char.series.trim() === ""
+        : char.series?.split(",").map((s) => s.trim()).includes(selectedSeries);
+
+    return matchesSearch && matchesSeries;
+  });
 
   return (
     <div className="my-10 md:my-12 p-6">
@@ -150,6 +196,21 @@ export default function CharacterPage() {
               placeholder="연도 입력"
             />
           </div>
+        </div>
+
+        {/* 시리즈 메뉴 */}
+        <div className="flex items-center">
+          <label htmlFor="seriesSelect" className="text-gray-200 font-medium ml-4">시리즈:</label>
+          <select
+            id="seriesSelect"
+            value={selectedSeries}
+            onChange={handleSeriesChange}
+            className="px-2 py-1 border border-gray-300 rounded-md text-black focus:ring focus:ring-blue-200"
+          >
+            {seriesList.map((series) => (
+              <option key={series} value={series}>{series}</option>
+            ))}
+          </select>
         </div>
         
         <div className="flex items-center gap-2">

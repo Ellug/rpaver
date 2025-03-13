@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { db, storage } from "@/libs/firebaseConfig";
-import { collection, addDoc, doc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
@@ -81,15 +81,16 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
         party: formData.party,
         skill: formData.skill,
         body: formData.body,
+        series: formData.series,
       };
 
       if (isEdit === true && characterId) {
         await updateDoc(doc(db, "character", characterId), basicCharacterData);
-        await updateDoc(doc(db, "character_detail", characterId), { ...formData });
+        await updateDoc(doc(db, "character_detail", characterId), { ...formData, updatedAt: serverTimestamp() });
       } else {
         const characterRef = await addDoc(collection(db, "character"), basicCharacterData);
         const newCharacterId = characterRef.id;
-        await setDoc(doc(db, "character_detail", newCharacterId), { ...formData });
+        await setDoc(doc(db, "character_detail", newCharacterId), { ...formData, updatedAt: serverTimestamp() });
       }
 
       router.back();
@@ -232,7 +233,7 @@ export default function CharacterUpdate({ character, isEdit = false }: { charact
           </div>
         </div>
 
-        <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} onTouchStart={(e) => e.stopPropagation()} className="p-2 bg-gray-700 rounded-md h-80" />
+        <textarea name="detail" placeholder="캐릭터 상세 설명" value={formData.detail} onChange={handleChange} onTouchStart={(e) => e.stopPropagation()} className="p-2 bg-gray-700 rounded-md h-[600px]" />
 
         <button type="submit" className="p-2 bg-blue-600 rounded-md hover:bg-blue-500">
           {isEdit ? "수정하기" : "등록하기"}

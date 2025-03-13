@@ -14,9 +14,9 @@ export default function HistoryResults({ queryText }: { queryText: string }) {
 
   const handleSelect = (id: number, date: string) => {
     const selectedData = { id, date };
-    sessionStorage.setItem("selectedHistory", JSON.stringify(selectedData)); // ✅ 객체 통째로 저장
-    router.push("/board/history"); // ✅ URL은 깔끔하게 유지
-  };  
+    sessionStorage.setItem("selectedData", JSON.stringify(selectedData)); // 객체 통째로 저장
+    router.push("/board/history"); // URL은 깔끔하게 유지
+  };
 
   useEffect(() => {
     if (!queryText.trim()) return;
@@ -27,14 +27,14 @@ export default function HistoryResults({ queryText }: { queryText: string }) {
       try {
         const historySnapshot = await getDocs(collection(db, "history"));
 
-        // 🔍 history의 title 필드에서 검색
+        // history의 title 필드에서 검색
         const historyResults = await Promise.all(
           historySnapshot.docs.map(async (docSnapshot) => {
             const data = docSnapshot.data();
             const title = data.title?.toLowerCase() || "";
 
             if (title.includes(queryText.toLowerCase())) {
-              // 🔥 해당 title이 검색어를 포함하면 content도 조회
+              // 해당 title이 검색어를 포함하면 content도 조회
               const contentDocRef = doc(db, "history_content", `content_${docSnapshot.id}`);
               const contentDocSnap = await getDoc(contentDocRef);
               const content = contentDocSnap.exists() ? contentDocSnap.data().content : "";
@@ -52,7 +52,7 @@ export default function HistoryResults({ queryText }: { queryText: string }) {
           })
         );
 
-        // 🔥 필터링하여 유효한 값만 저장
+        // 필터링하여 유효한 값만 저장
         setResults(historyResults.filter((item) => item !== null));
       } catch (error) {
         console.error("검색 오류:", error);
@@ -64,14 +64,14 @@ export default function HistoryResults({ queryText }: { queryText: string }) {
     fetchSearchResults();
   }, [queryText]);
 
-  // 🔥 검색어 하이라이트 (title, content)
+  // 검색어 하이라이트 (title, content)
   const highlightText = (text: string | undefined): string => {
     if (!text) return "";
     const regex = new RegExp(`(${queryText})`, "gi");
     return text.replace(regex, `<span class="text-yellow-400 font-bold">$1</span>`);
   };
 
-  // 🔥 검색어 주변 텍스트 추출 (본문)
+  // 검색어 주변 텍스트 추출 (본문)
   const extractContext = (text: string | undefined): string => {
     if (!text) return "";
 
@@ -104,13 +104,13 @@ export default function HistoryResults({ queryText }: { queryText: string }) {
                          hover:bg-gray-900 hover:bg-opacity-70 transition cursor-pointer"
                          onClick={() => handleSelect(item.id, item.date)}
             >
-              {/* 🔥 히스토리 제목 + 날짜 */} 
+              {/* 히스토리 제목 + 날짜 */} 
               <h3 className="text-2xl font-bold mb-2 flex justify-start gap-8 items-center">
                 <span dangerouslySetInnerHTML={{ __html: highlightText(item.title) }} />
                 <span className="text-gray-300 text-sm">{item.date}</span>
               </h3>
 
-              {/* 🔥 본문 미리보기 */}
+              {/* 본문 미리보기 */}
               <p
                 className="mt-4 text-md leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: extractContext(item.content) }}

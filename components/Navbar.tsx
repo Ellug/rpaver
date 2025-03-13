@@ -30,7 +30,7 @@ export default function Navbar() {
         { label: "캐릭터", route: "/board/character" },
         { label: "아이템", route: "/board/item" },
         { label: "히스토리", route: "/board/history" },
-        { label: "설정", route: "/board/worldset" }
+        // { label: "설정", route: "/board/worldset" }
       ] 
     },
     { 
@@ -52,7 +52,7 @@ export default function Navbar() {
     { label: "로그아웃", action: async () => { await logout(); router.push("/login"); } }
   ];
 
-  // 🔹 외부 클릭 시 드롭다운 닫기
+  // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -93,7 +93,7 @@ export default function Navbar() {
         {/* 우측: 로그인 / 유저 정보 */}
         <div ref={dropdownRef} className="relative z-50">
           {userData ? (
-            // ✅ 로그인 상태 → 프로필 드롭다운
+            // 로그인 상태 → 프로필 드롭다운
             <div
               className="flex items-center gap-2 cursor-pointer hover:scale-[1.05] transition"
               onClick={() => setDropdownOpen((prev) => !prev)}
@@ -106,7 +106,7 @@ export default function Navbar() {
               />
             </div>
           ) : (
-            // ✅ 로그아웃 상태 → 로그인 버튼 (그라데이션 테두리)
+            // 로그아웃 상태 → 로그인 버튼 (그라데이션 테두리)
             <button
               onClick={() => router.push("/login")}
               className="relative bg-gradient-to-r from-blue-500 to-purple-500 p-[2px] rounded-lg hover:scale-[1.05] transition"
