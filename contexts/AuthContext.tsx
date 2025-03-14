@@ -19,6 +19,7 @@ interface UserData {
 
 interface AuthContextType {
   userData: UserData | null;
+  prevLogin: Timestamp | null;
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [prevLogin, setPrevLogin] = useState<Timestamp | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -67,9 +69,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (userSnap.exists()) {
         // 기존 유저 데이터 불러오기 & lastLogin 업데이트
         const existingUserData = userSnap.data() as UserData;
+        // 기존 lastLogin 값을 prevLogin 상태로 저장
+        if (existingUserData.lastLogin instanceof Timestamp) {
+          setPrevLogin(existingUserData.lastLogin);
+        }
         await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
 
         setUserData({ ...existingUserData, lastLogin: Timestamp.now(), }); // UI에도 반영
+        console.log("🔥 Firestore에서 가져온 prevLogin:", existingUserData.lastLogin);
       } else {
         // 새 유저 데이터 생성 (lastLogin 포함)
         const newUserData: UserData = {
@@ -122,7 +129,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ userData, login, logout, loading, setUserData }}>
+    <AuthContext.Provider value={{ userData, prevLogin, login, logout, loading, setUserData }}>
       {children}
     </AuthContext.Provider>
   );

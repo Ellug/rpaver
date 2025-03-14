@@ -39,7 +39,7 @@ const Page: React.FC = () => {
 
   return (
     <div className="flex h-[calc(100vh-130px)]">
-      <SideMenu documents={documents} onSelect={setSelectedId} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}  />
+      <SideMenu documents={documents} onSelect={setSelectedId} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} selectedId={selectedId} />
       <Editor document={documents.find((doc) => doc.id === selectedId) || null} />
     </div>
   );
