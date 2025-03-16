@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getVertexAI, getImagenModel } from "firebase/vertexai";
+import { getVertexAI } from "firebase/vertexai";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,7 +20,5 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const vertexAI = getVertexAI(app);
-
-export const imagenModel = getImagenModel(vertexAI, { model: "imagen-3.0-generate-002" });
 
 export default app;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { collection, getDocs, query, orderBy, doc, deleteDoc } from 'firebase/firestore';
 import { db, storage } from '@/libs/firebaseConfig';
 import { ref, deleteObject } from 'firebase/storage';
@@ -23,14 +23,33 @@ type ImageData = {
 const VertextGalleryPage = () => {
   const router = useRouter();
   const { users } = useUserContext();
-  const { userData } = useAuth(); // 🔥 로그인 유저 데이터
+  const { userData } = useAuth();
   const [images, setImages] = useState<ImageData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
 
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  // Masonry 핵심 함수
+  const resizeAllGridItems = () => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+    const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('gap'));
+
+    grid.querySelectorAll('.grid-item').forEach((item) => {
+      const content = item.querySelector('.content') as HTMLImageElement;
+      if (!content) return;
+      const rowSpan = Math.ceil((content.offsetHeight + rowGap) / (rowHeight + rowGap));
+      (item as HTMLElement).style.gridRowEnd = `span ${rowSpan}`;
+      (item as HTMLElement).style.visibility = 'visible';
+    });
+  };
+
+  // 이미지 불러오기
   useEffect(() => {
     const fetchImages = async () => {
-      setIsLoading(true);
       try {
         const q = query(collection(db, 'generator'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
@@ -50,17 +69,32 @@ const VertextGalleryPage = () => {
       } catch (error) {
         console.error('Error fetching images:', error);
       }
-      setIsLoading(false);
     };
 
     fetchImages();
   }, []);
 
+  // 이미지 변경시 재정렬
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      resizeAllGridItems();
+    }, 300); // 약간의 delay 필요
+
+    window.addEventListener('resize', resizeAllGridItems);
+    setIsLoading(false);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', resizeAllGridItems);
+    };
+  }, [images]);
+
+  // 프롬프트 재사용
   const handleReusePrompt = (prompt: string) => {
     sessionStorage.setItem("reusePrompt", prompt);
-    router.push("/play/vertextai");
+    router.push("/play/vertexai");
   };
 
+  // 삭제 기능
   const handleDelete = async (image: ImageData) => {
     if (!userData) {
       alert("로그인이 필요합니다.");
@@ -79,15 +113,12 @@ const VertextGalleryPage = () => {
     if (!confirm) return;
 
     try {
-      // Firestore 문서 삭제
       await deleteDoc(doc(db, "generator", image.id));
 
-      // Storage 파일 삭제
-      const fileName = image.imageUrl.split('%2F').pop()?.split('?')[0]; // 파일 이름 파싱
+      const fileName = image.imageUrl.split('%2F').pop()?.split('?')[0];
       const storageRef = ref(storage, `generator/${image.uid}/${fileName}`);
       await deleteObject(storageRef);
 
-      // 화면에서도 제거
       setImages((prev) => prev.filter((img) => img.id !== image.id));
       setSelectedImage(null);
 
@@ -99,24 +130,31 @@ const VertextGalleryPage = () => {
   };
 
   return (
-    <div className="p-6 w-full grid grid-cols-2 md:grid-cols-5 gap-6">
+    <div className="p-6 w-full">
       {isLoading && <LoadingModal />}
 
-      {images.map((image) => (
-        <div key={image.id} className="flex flex-col items-center gap-2">
-          <img
-            src={image.imageUrl}
-            alt={image.prompt}
-            className="rounded-md border border-gray-700 cursor-pointer"
-            onClick={() => setSelectedImage(image)}
-          />
-        </div>
-      ))}
+      <div
+        ref={gridRef}
+        className="grid grid-cols-2 md:grid-cols-5 gap-6 auto-rows-[8px]"
+      >
+        {images.map((image) => (
+          <div key={image.id} className="grid-item overflow-hidden rounded-md invisible">
+            <img
+              src={image.imageUrl}
+              alt={image.prompt}
+              loading="lazy"
+              className="content w-full hover:scale-[1.02] cursor-pointer"
+              onLoad={resizeAllGridItems}
+              onClick={() => setSelectedImage(image)}
+            />
+          </div>
+        ))}
+      </div>
 
       {/* 모달 */}
       {selectedImage && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-95 flex flex-col items-center justify-center z-50 p-4">
-          <img src={selectedImage.imageUrl} alt={selectedImage.prompt} className="max-w-xl max-h-[80vh] rounded-md border border-gray-700 mb-8" />
+          <img src={selectedImage.imageUrl} alt={selectedImage.prompt} className="max-w-xl max-h-[60vh] rounded-md border border-gray-700 mb-8" />
           
           {/* 작성자 정보 */}
           <div className="flex items-center gap-2 mb-2">
@@ -140,7 +178,6 @@ const VertextGalleryPage = () => {
               이 프롬프트로 생성하기
             </button>
 
-            {/* 삭제 버튼 (권한 있을 때만 표시) */}
             {(userData?.uid === selectedImage.uid || userData?.admin) && (
               <button
                 onClick={() => handleDelete(selectedImage)}
