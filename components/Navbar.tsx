@@ -23,14 +23,13 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const menues: Menu[] = [
-    { 
+    {
       name: "게시판", 
       subMenu: [
         { label: "자유", route: "/board/free" },
         { label: "캐릭터", route: "/board/character" },
         { label: "아이템", route: "/board/item" },
         { label: "히스토리", route: "/board/history" },
-        // { label: "설정", route: "/board/worldset" }
       ] 
     },
     { 
@@ -38,12 +37,19 @@ export default function Navbar() {
       subMenu: [
         { label: "캐릭터", route: "/gallery/character" },
         { label: "저장소", route: "/gallery/stock" },
+        { label: "AI", route: "/gallery/ai" },
         { label: "폴더", route: "/gallery/folder" }
       ] 
     },
     { 
       name: "검색", 
       subMenu: [{ component: <Search setHoveredCategory={setHoveredCategory} /> }]
+    },
+    {
+      name: "놀이터", 
+      subMenu: [
+        { label: "Vertext", route: "/play/vertextai" },
+      ] 
     },
   ];
 
