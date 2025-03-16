@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, deleteDoc, Timestamp } from "firebase/firestore";
-import { ref, listAll, deleteObject } from "firebase/storage";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
 import { db, storage } from "@/libs/firebaseConfig";
 import LoadingModal from "@/components/LoadingModal";
 import ImageModal from "@/components/ImageModal";
@@ -12,16 +12,22 @@ import { useUserContext } from "@/contexts/UserContext";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { fetchImagesFromStorage } from "@/utils/Storage";
+import FormatText from "@/utils/FormatText";
 
-type Item = {
+interface PageData {
+  imageUrl: string;
+  detail: string;
+}
+
+interface Item {
   id: string;
   category: string;
   name: string;
-  detail: string;
+  pages: PageData[];
   created: number;
+  updatedAt: number;
   author: string;
-};
+}
 
 export default function ItemDetailPage() {
   const router = useRouter();
@@ -29,7 +35,6 @@ export default function ItemDetailPage() {
   const { users } = useUserContext();
 
   const [item, setItem] = useState<Item | null>(null);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -48,13 +53,11 @@ export default function ItemDetailPage() {
             id: docSnap.id,
             category: itemData.category || "카테고리 없음",
             name: itemData.name || "이름 없음",
-            detail: itemData.detail || "설명 없음",
-            created: itemData.created instanceof Timestamp ? itemData.created.toMillis() : Date.now(),
+            pages: itemData.pages || [],
+            created: itemData.created?.toMillis() || Date.now(),
+            updatedAt: itemData.created?.toMillis() || Date.now(),
             author: itemData.author || "unknown",
           });
-
-          const urls = await fetchImagesFromStorage(`items/${docSnap.id}/`);
-          setImageUrls(urls);
         } else {
           alert("해당 아이템을 찾을 수 없습니다.");
           router.back();
@@ -75,23 +78,6 @@ export default function ItemDetailPage() {
     picture: "/default-profile.png",
   };
 
-  // 🔹 상세 설명 텍스트 포맷팅 함수
-  const formatDetailText = (text: string) => {
-    return (
-      <div className="whitespace-pre-wrap">
-        {text
-          .replace(/\*\*(.*?)\*\*/g, '<span class="text-white text-xl font-bold">$1</span>') // **굵은 텍스트 변환**
-          .split("---")
-          .map((segment, index) => (
-            <React.Fragment key={index}>
-              {index > 0 && <hr className="border-gray-500 opacity-80 my-2" />} {/* 절취선 삽입 */}
-              <div dangerouslySetInnerHTML={{ __html: segment }} />
-            </React.Fragment>
-          ))}
-      </div>
-    );
-  };
-
   // 🔹 아이템 삭제 함수
   const handleDelete = async () => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
@@ -102,10 +88,11 @@ export default function ItemDetailPage() {
       await deleteDoc(doc(db, "items", item.id));
 
       // 🔹 Storage 폴더 삭제
-      const folderRef = ref(storage, `items/${item.name}/`);
-      const result = await listAll(folderRef);
-      for (const fileRef of result.items) {
-        await deleteObject(fileRef);
+      for (const page of item.pages) {
+        if (page.imageUrl) {
+          const storageRef = ref(storage, page.imageUrl);
+          await deleteObject(storageRef);
+        }
       }
 
       alert("아이템이 삭제되었습니다.");
@@ -114,7 +101,7 @@ export default function ItemDetailPage() {
       console.error("🔥 아이템 삭제 실패:", error);
       alert("삭제 중 오류가 발생했습니다.");
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   if (loading) return <LoadingModal />;
@@ -122,30 +109,7 @@ export default function ItemDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative">
-      {/* 🔹 아이템 이미지 슬라이더 */}
-      <div className="relative flex justify-center mb-6">
-        <div className="w-full max-w-lg">
-          {imageUrls.length > 0 && imageUrls[0] ? (
-            <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
-              {imageUrls.map((img, index) => (
-                <div key={index} className="flex justify-center">
-                  <img
-                    src={img}
-                    alt={`아이템 이미지 ${index + 1}`}
-                    className="rounded-lg w-full h-80 object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => setSelectedImage(img)}
-                  />
-                </div>
-              ))}
-            </Slider>
-          ) : (
-            <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
-              이미지 없음
-            </div>
-          )}
-        </div>
-      </div>
-
+      
       {/* 🔹 작성자 정보 */}
       <div className="flex justify-end items-center gap-3 mb-4">
         <img src={authorData.picture} alt={authorData.name} className="w-10 h-10 rounded-full border border-gray-500" />
@@ -158,10 +122,47 @@ export default function ItemDetailPage() {
         <p className="text-gray-400">{item.category}</p>
       </div>
 
-      {/* 🔹 상세 정보 */}
-      <div className="mt-6 text-md text-gray-300 leading-loose">{formatDetailText(item.detail)}</div>
+      {/* 🔹 아이템 이미지 슬라이더 */}
+      <div className="relative flex justify-center mb-6">
+        <div className="w-full">
+          {item.pages.length > 0 && item.pages[0].imageUrl ? (
+            <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight >
+              {item.pages.map((page, index) => (
+                <div key={index} className="flex flex-col items-center">
+                  {/* 🔹 이미지 영역 */}
+                  {page.imageUrl ? (
+                    <img
+                      src={page.imageUrl}
+                      alt={`페이지 ${index + 1}`}
+                      tabIndex={-1}
+                      className="rounded-lg w-full h-[512px] object-contain cursor-pointer hover:scale-[1.02] transition-transform"
+                      onClick={() => setSelectedImage(page.imageUrl)}
+                    />
+                  ) : (
+                    <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
+                      이미지 없음
+                    </div>
+                  )}
 
-      <p className="mt-4 text-gray-400">등록일: {new Date(item.created).toLocaleDateString("ko-KR")}</p>
+                  {/* 🔹 페이지 설명 영역 (p 태그 줄바꿈 적용) */}
+                  <div className="w-[95%] md:w-[80%] my-8 md:my-12 mx-auto text-gray-300">
+                    <h3 className="text-xl mb-4 font-semibold text-gold">Page {index + 1}</h3>
+                    <hr className="mb-4 opacity-30"/>
+                    <FormatText text={page.detail} />
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          ) : (
+            <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
+              내용 없음
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="mt-20 text-gray-400">마지막 수정일: {new Date(item.updatedAt).toLocaleDateString("ko-KR")}</p>
+      <p className="mt-2 text-gray-400">등록일: {new Date(item.created).toLocaleDateString("ko-KR")}</p>
 
       {/* 🔹 버튼 그룹 */}
       <div className="flex justify-center gap-4 mt-12 mb-4">

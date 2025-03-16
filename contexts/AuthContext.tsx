@@ -32,14 +32,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [prevLogin, setPrevLogin] = useState<Timestamp | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !userData) {
+    if (loading) return;
+    if (!userData) {
       router.push("/login");
     }
   }, [userData, loading, router]);
+  
 
   useEffect(() => {
     // 브라우저 세션에서 데이터 불러오기 (새로고침 시 유지)
@@ -47,6 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedUserData) {
       setUserData(JSON.parse(storedUserData));
     }
+    setLoading(false);
   }, []);
   
   useEffect(() => {

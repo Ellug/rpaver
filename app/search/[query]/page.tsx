@@ -4,10 +4,9 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import CategorySelector from "../components/CategorySelector";
 import CharacterResults from "../components/CharacterResults";
-// import ItemSearchResults from "./ItemSearchResults";
-// import WorldSetSearchResults from "./WorldSetSearchResults";
 import GalleryResults from "../components/GalleryResults";
 import HistoryResults from "../components/HistoryResults";
+import ItemResults from "../components/ItemResults";
 
 
 export default function SearchResults() {
@@ -28,11 +27,10 @@ export default function SearchResults() {
       <h2 className="mt-6 text-xl font-semibold mb-4">🔍 <span className="font-bold text-2xl mx-2">{queryText}</span> 검색 결과</h2>
 
       {/* 선택된 카테고리에 따라 다른 결과 컴포넌트 렌더링 */}
-      {categoryValue === "character" && <CharacterResults queryText={queryText} />}
-      {/* categoryValue === "items" && <ItemSearchResults queryText={queryText} /> */}
-      {categoryValue === "history" && <HistoryResults queryText={queryText} />}
-      {/* categoryValue === "worldset" && <WorldSetSearchResults queryText={queryText} /> */}
       {categoryValue === "gallery" && <GalleryResults queryText={queryText} />}
+      {categoryValue === "character" && <CharacterResults queryText={queryText} />}
+      {categoryValue === "history" && <HistoryResults queryText={queryText} />}
+      {categoryValue === "items" && <ItemResults queryText={queryText} />}
     </div>
   );
 }

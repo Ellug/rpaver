@@ -186,7 +186,7 @@ export default function CharacterPage() {
       <div className="flex flex-col md:flex-row md:w-[90%] max-w-[1920px] mx-auto justify-between items-center gap-4 mb-4 text-sm">
         <div className="flex flex-row gap-4">
           <div className="flex items-center">
-            <label htmlFor="yearInput" className="text-gray-200 font-medium">연도:</label>
+            <label htmlFor="yearInput" className="text-gray-200 font-medium mr-2">연도:</label>
             <input
               id="yearInput"
               type="text"
@@ -196,22 +196,24 @@ export default function CharacterPage() {
               placeholder="연도 입력"
             />
           </div>
+
+          {/* 시리즈 메뉴 */}
+          <div className="flex items-center">
+            <label htmlFor="seriesSelect" className="text-gray-200 font-medium ml-4 mr-2">시리즈:</label>
+            <select
+              id="seriesSelect"
+              value={selectedSeries}
+              onChange={handleSeriesChange}
+              className="px-2 py-1 border border-gray-300 rounded-md text-black focus:ring focus:ring-blue-200"
+            >
+              {seriesList.map((series) => (
+                <option key={series} value={series}>{series}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* 시리즈 메뉴 */}
-        <div className="flex items-center">
-          <label htmlFor="seriesSelect" className="text-gray-200 font-medium ml-4">시리즈:</label>
-          <select
-            id="seriesSelect"
-            value={selectedSeries}
-            onChange={handleSeriesChange}
-            className="px-2 py-1 border border-gray-300 rounded-md text-black focus:ring focus:ring-blue-200"
-          >
-            {seriesList.map((series) => (
-              <option key={series} value={series}>{series}</option>
-            ))}
-          </select>
-        </div>
+
         
         <div className="flex items-center gap-2">
           <label htmlFor="searchInput" className="text-gray-200 font-medium">검색:</label>

@@ -90,14 +90,14 @@ export default function CharacterDetailPage() {
       {/* 캐릭터 이미지 슬라이더 */}
       {imageUrls.length > 0 && (
         <div className="relative flex justify-center">
-          <div className="w-full max-w-lg">
+          <div className="w-full max-w-2xl">
             <Slider dots infinite speed={100} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
               {imageUrls.map((img, index) => (
                 <div key={index} className="flex justify-center">
                   <img
                     src={img}
                     alt={character.name}
-                    className="rounded-lg w-full h-80 object-contain cursor-pointer hover:scale-105 transition-transform"
+                    className="rounded-lg w-full max-h-[512px] object-contain cursor-pointer hover:scale-105 transition-transform"
                     onClick={() => setSelectedImage(img)}
                   />
                 </div>

@@ -64,7 +64,7 @@ export default function LatestUpdates({ title, collectionName, fields, sendField
   };
 
   return (
-    <div className="w-auto md:w-[600px] mt-10 bg-gray-900/50 p-4 rounded-lg shadow-lg text-white border border-gray-700">
+    <div className="w-auto md:w-[600px] bg-gray-900/50 p-4 rounded-lg shadow-lg text-white border border-gray-700">
       <h2 className="text-lg font-bold text-white/80 mb-3">{title}</h2>
 
       {loading ? (
@@ -84,16 +84,16 @@ export default function LatestUpdates({ title, collectionName, fields, sendField
                 onClick={() => handleItemClick(item)}
               >
                 <div className="flex justify-between items-center">
-                  <div className="flex gap-8">
+                  <div className="flex gap-2">
                     {fields.map((field) => (
                       <p key={field} className="text-sm text-gray-300">
-                        <span className="font-semibold text-white">{field}:</span> {item[field] as string || "없음"}
+                        {item[field] as string || ""}
                       </p>
                     ))}
                   </div>
 
                   {/* NEW 태그 표시 */}
-                  {isNew && <span className="text-red-600 text-sm font-bold ml-2">NEW</span>}
+                  {isNew && <span className="text-gold text-sm font-bold ml-2">NEW</span>}
                 </div>
 
                 <p className="text-end text-xs text-gray-400 mt-2">

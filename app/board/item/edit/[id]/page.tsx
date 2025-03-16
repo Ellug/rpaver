@@ -1,225 +1,235 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ref, getDownloadURL, listAll, uploadBytes, deleteObject } from "firebase/storage";
+import { useRouter, useParams } from "next/navigation";
+import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { db, storage } from "@/libs/firebaseConfig";
+import { useAuth } from "@/contexts/AuthContext";
 import LoadingModal from "@/components/LoadingModal";
-// @ts-expect-error: TypeScript가 Slider 모듈을 인식하지 못함
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
-type Item = {
-  id: string;
-  category: string;
-  name: string;
+interface PageData {
+  imageUrl: string;
+  imageFile: File | null;
   detail: string;
-  created: number;
-};
+}
 
 export default function EditItemPage() {
   const router = useRouter();
-  const { id } = useParams();
-  const [item, setItem] = useState<Item | null>(null);
+  const { id } = useParams(); // URL에서 `id` 가져오기
+  const { userData } = useAuth();
+  const [formData, setFormData] = useState({ category: "", name: "" });
+  const [pages, setPages] = useState<PageData[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState<boolean>(true);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [newImage, setNewImage] = useState<File | null>(null);
 
+  // 🔹 Firestore에서 기존 데이터 불러오기
   useEffect(() => {
     if (!id) return;
 
     const fetchItem = async () => {
+      setLoading(true);
       try {
         const docRef = doc(db, "items", id as string);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          const itemData = docSnap.data();
-          setItem({
-            id: docSnap.id,
-            category: itemData.category || "",
-            name: itemData.name || "",
-            detail: itemData.detail || "",
-            created: itemData.created?.toMillis() || Date.now(),
-          });
-
-          // 🔹 Storage에서 해당 아이템 폴더의 이미지 가져오기
-          await fetchItemImages(itemData.name);
+          const data = docSnap.data();
+          setFormData({ category: data.category, name: data.name });
+          setPages(data.pages || [{ imageUrl: "", imageFile: null, detail: "" }]);
         } else {
-          alert("해당 아이템을 찾을 수 없습니다.");
-          router.push("/board/item");
+          alert("문서를 찾을 수 없습니다.");
+          router.back();
         }
       } catch (error) {
-        console.error("🔥 Firestore에서 데이터 가져오기 실패:", error);
+        console.error("🔥 데이터 로딩 오류:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchItem();
-  }, [id, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
-  // 🔹 Storage에서 해당 아이템 폴더 내 모든 이미지 가져오기
-  const fetchItemImages = async (name: string) => {
-    const folderRef = ref(storage, `items/${name}/`);
+  // 🔹 입력값 변경 핸들러
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
+  // 🔹 페이지 추가
+  const addPage = () => {
+    setPages([...pages, { imageUrl: "", imageFile: null, detail: "" }]);
+    setCurrentPage(pages.length);
+  };
+
+  // 🔹 페이지 삭제
+  const removePage = (index: number) => {
+    if (pages.length === 1) return;
+    if (pages[index].imageUrl) removeImage(pages[index].imageUrl);
+    const newPages = pages.filter((_, i) => i !== index);
+    setPages(newPages);
+    setCurrentPage(Math.max(0, index - 1));
+  };
+
+  // 🔹 현재 페이지 내용 수정
+  const updatePage = (key: keyof PageData, value: PageData[keyof PageData]) => {
+    setPages((prevPages) => {
+      const newPages = [...prevPages];
+      newPages[currentPage] = { ...newPages[currentPage], [key]: value };
+      return newPages;
+    });
+  };
+
+  // 🔹 이미지 업로드 핸들러
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!userData?.uid) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    updatePage("imageFile", file);
+    updatePage("imageUrl", URL.createObjectURL(file)); // 미리보기
+  };
+
+  // 🔹 이미지 삭제 핸들러
+  const removeImage = async (url: string) => {
+    setLoading(true);
     try {
-      const result = await listAll(folderRef);
-
-      if (result.items.length === 0) {
-        console.warn(`⚠️ 이미지 없음: items/${name}/`);
-        return;
-      }
-
-      const urls = await Promise.all(result.items.map(async (item) => await getDownloadURL(item)));
-      setImageUrls(urls);
+      const storageRef = ref(storage, url);
+      await deleteObject(storageRef);
+      updatePage("imageUrl", "");
+      updatePage("imageFile", null);
     } catch (error) {
-      console.error(`🔥 Storage 이미지 가져오기 실패 (${name}):`, error);
+      console.error("🔥 이미지 삭제 오류:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🔹 입력 필드 변경 핸들러
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (item) {
-      setItem({ ...item, [e.target.name]: e.target.value });
+  // 🔹 Firestore 문서 업데이트
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.category || !formData.name) {
+      alert("카테고리와 이름을 입력해주세요.");
+      return;
     }
-  };
 
-  // 🔹 Firestore 업데이트 함수
-  const handleUpdate = async () => {
-    if (!item) return;
-
+    setLoading(true);
     try {
       const docRef = doc(db, "items", id as string);
+
+      // 🔹 Storage 업로드 후 `pages` 배열 업데이트
+      const updatedPages = await Promise.all(
+        pages.map(async (page, index) => {
+          let imageUrl = page.imageUrl;
+
+          // 🔹 새로운 이미지가 업로드되었을 경우 Storage에 저장 후 URL 업데이트
+          if (page.imageFile) {
+            const storagePath = `items/${id}/page${index + 1}_${page.imageFile.name}`;
+            const storageRef = ref(storage, storagePath);
+            await uploadBytes(storageRef, page.imageFile);
+            imageUrl = await getDownloadURL(storageRef);
+          }
+
+          return { imageUrl, detail: page.detail };
+        })
+      );
+
+      // 🔹 Firestore 문서 업데이트
       await updateDoc(docRef, {
-        category: item.category,
-        name: item.name,
-        detail: item.detail,
+        category: formData.category,
+        name: formData.name,
+        updatedAt: serverTimestamp(),
+        pages: updatedPages,
       });
 
-      alert("수정이 완료되었습니다.");
-      router.push(`/board/item/detail/${id}`);
+      alert("아이템이 수정되었습니다.");
+      router.back();
     } catch (error) {
-      console.error("🔥 Firestore 업데이트 실패:", error);
+      console.error("🔥 아이템 수정 오류:", error);
       alert("수정 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
-
-  // 🔹 이미지 삭제 함수
-  const handleDeleteImage = async (imageUrl: string) => {
-    try {
-      const urlPath = new URL(imageUrl).pathname.split("/o/")[1].split("?")[0];
-      const decodedPath = decodeURIComponent(urlPath);
-      const fileRef = ref(storage, decodedPath);
-
-      await deleteObject(fileRef);
-      alert("이미지가 삭제되었습니다.");
-
-      // UI 업데이트
-      setImageUrls(imageUrls.filter((url) => url !== imageUrl));
-    } catch (error) {
-      console.error("🔥 이미지 삭제 실패:", error);
-      alert("이미지 삭제 중 오류가 발생했습니다.");
-    }
-  };
-
-  // 🔹 이미지 추가 함수
-  const handleUploadImage = async () => {
-    if (!newImage || !item) return;
-
-    try {
-      const imageRef = ref(storage, `items/${item.name}/${newImage.name}`);
-      await uploadBytes(imageRef, newImage);
-      const newImageUrl = await getDownloadURL(imageRef);
-
-      setImageUrls([...imageUrls, newImageUrl]);
-      setNewImage(null);
-
-      alert("이미지가 업로드되었습니다.");
-    } catch (error) {
-      console.error("🔥 이미지 업로드 실패:", error);
-      alert("이미지 업로드 중 오류가 발생했습니다.");
-    }
-  };
-
-  if (loading) return <LoadingModal />;
-  if (!item) return <div className="text-center text-gray-400 mt-10">아이템을 찾을 수 없습니다.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative">
-      {/* 🔹 아이템 이미지 슬라이더 */}
-      <div className="relative flex justify-center mb-6">
-        <div className="w-full max-w-lg">
-          {imageUrls.length > 0 ? (
-            <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
-              {imageUrls.map((img, index) => (
-                <div key={index} className="flex justify-center relative">
-                  <img
-                    src={img}
-                    alt={`아이템 이미지 ${index + 1}`}
-                    className="rounded-lg w-full h-80 object-contain cursor-pointer hover:scale-105 transition-transform"
-                  />
-                  <button
-                    onClick={() => handleDeleteImage(img)}
-                    className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full text-xs hover:bg-red-500 transition"
-                  >
-                    삭제
-                  </button>
-                </div>
-              ))}
-            </Slider>
-          ) : (
-            <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
-              이미지 없음
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="p-6 max-w-4xl mx-auto">
+      {loading && <LoadingModal />}
+      <h1 className="text-2xl font-bold mb-4">아이템 편집</h1>
 
-      {/* 🔹 아이템 수정 입력 폼 */}
-      <div className="text-gray-300 space-y-4">
-        {[
-          { label: "카테고리", name: "category", type: "text", placeholder: "카테고리 입력" },
-          { label: "이름", name: "name", type: "text", placeholder: "이름 입력" },
-        ].map(({ label, name, type, placeholder }) => (
+      <form onSubmit={handleUpdate} className="flex flex-col gap-4">
+        {/* 기본 입력 필드 */}
+        {["category", "name"].map((name) => (
           <div key={name}>
-            <label className="block font-medium">{label}</label>
+            <label className="block font-medium">{name === "category" ? "카테고리" : "이름"}</label>
             <input
-              type={type}
+              type="text"
               name={name}
-              value={item[name as keyof Item]}
+              value={formData[name as keyof typeof formData]}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded-md text-black"
-              placeholder={placeholder}
+              className="w-full border px-3 py-2 text-black rounded-md"
             />
           </div>
         ))}
 
-        <div>
-          <label className="block font-medium">설명</label>
-          <textarea
-            name="detail"
-            value={item.detail}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded-md h-80 resize-none text-black"
-          />
+        {/* 현재 페이지 표시 */}
+        <div className="mt-4">
+          <h2 className="text-lg font-bold">페이지 {currentPage + 1}</h2>
+
+          {/* 이미지 업로드 */}
+          <div className="mt-2 relative">
+            {pages[currentPage]?.imageUrl ? (
+              <div className="relative w-full">
+                <img src={pages[currentPage].imageUrl} alt="업로드된 이미지" className="w-full h-[512px] object-contain border rounded-md" />
+                <button type="button" className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-full text-sm" onClick={() => removeImage(pages[currentPage].imageUrl)}>
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="w-full border px-3 py-2 rounded-md" />
+            )}
+          </div>
+
+          {/* 설명 입력 */}
+          <div className="mt-2">
+            <label className="block font-medium">설명</label>
+            <textarea value={pages[currentPage]?.detail} onChange={(e) => updatePage("detail", e.target.value)} className="w-full border px-3 py-2 text-black rounded-md h-32 resize-none" />
+          </div>
         </div>
-      </div>
 
-      {/* 🔹 이미지 업로드 */}
-      <div className="mt-6">
-        <input type="file" onChange={(e) => setNewImage(e.target.files?.[0] || null)} className="text-gray-300" />
-        <button onClick={handleUploadImage} className="ml-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 transition">
-          추가
-        </button>
-      </div>
+        {/* 페이지 버튼 (이동, 추가, 삭제) */}
+        <div className="flex gap-2 mt-4">
+          {pages.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`px-4 py-2 rounded-md ${currentPage === index ? "bg-blue-900 text-white" : "bg-gray-800"}`}
+              onClick={() => setCurrentPage(index)}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button type="button" onClick={addPage} className="px-4 py-2 bg-green-500 text-white rounded-md">
+            ＋
+          </button>
+          {pages.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removePage(currentPage)}
+              className="px-4 py-2 bg-red-500 text-white rounded-md"
+            >
+              🗑
+            </button>
+          )}
+        </div>
 
-      {/* 🔹 저장 버튼 */}
-      <button onClick={handleUpdate} className="mt-6 w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition">
-        저장
-      </button>
+        {/* 업데이트 버튼 */}
+        <button type="submit" className="w-full bg-blue-600 text-white px-4 py-2 rounded-md">수정하기</button>
+      </form>
     </div>
   );
 }
