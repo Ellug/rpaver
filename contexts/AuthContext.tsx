@@ -112,8 +112,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       if (error instanceof FirebaseError) {
         console.error("🔥 로그인 실패:", error.message);
+        alert(`🔥 로그인 실패: ${error.message}`)
       } else {
         console.error("🔥 알 수 없는 오류 발생:", error);
+        alert(`🔥 알 수 없는 오류 발생: ${error}`);
       }
     } finally {
       setLoading(false);

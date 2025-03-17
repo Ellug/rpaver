@@ -43,12 +43,12 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white">
-      <main className="flex flex-col items-center gap-4 p-8 rounded-lg border border-white/30 shadow-lg shadow-white/10 w-full max-w-md">
+      <main className="flex flex-col items-center gap-4 p-8 rounded-lg border border-white/30 shadow-lg shadow-white/10 w-full max-w-sm md:max-w-md">
         <p className="text-4xl text-white/80 text-center">RPAVER</p>
         <h1 className="text-xl font-bold text-white">Welcome Spawner {userData?.name}</h1>
       </main>
 
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
         {updateConfigs.map((config, index) => (
           <LatestUpdates key={index} {...config} />
         ))}

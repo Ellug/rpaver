@@ -149,7 +149,7 @@ export default function AddItemPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {loading && <LoadingModal />}
-      <h1 className="text-2xl font-bold mb-4">아이템 추가</h1>
+      <h1 className="text-2xl font-bold mb-4">사전 추가</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* 기본 입력 필드 */}

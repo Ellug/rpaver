@@ -64,7 +64,7 @@ export default function LatestUpdates({ title, collectionName, fields, sendField
   };
 
   return (
-    <div className="w-auto md:w-[600px] bg-gray-900/50 p-4 rounded-lg shadow-lg text-white border border-gray-700">
+    <div className="w-[90vw] md:w-[600px] bg-gray-900/50 p-4 rounded-lg shadow-lg text-white border border-gray-700">
       <h2 className="text-lg font-bold text-white/80 mb-3">{title}</h2>
 
       {loading ? (

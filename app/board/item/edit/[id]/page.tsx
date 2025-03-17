@@ -146,10 +146,10 @@ export default function EditItemPage() {
         pages: updatedPages,
       });
 
-      alert("아이템이 수정되었습니다.");
+      alert("사전이 수정되었습니다.");
       router.back();
     } catch (error) {
-      console.error("🔥 아이템 수정 오류:", error);
+      console.error("🔥 사전 수정 오류:", error);
       alert("수정 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
@@ -159,7 +159,7 @@ export default function EditItemPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {loading && <LoadingModal />}
-      <h1 className="text-2xl font-bold mb-4">아이템 편집</h1>
+      <h1 className="text-2xl font-bold mb-4">사전 편집</h1>
 
       <form onSubmit={handleUpdate} className="flex flex-col gap-4">
         {/* 기본 입력 필드 */}

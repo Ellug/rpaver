@@ -136,7 +136,7 @@ export default function ItemBoard() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">아이템 게시판</h1>
+      <h1 className="text-2xl font-bold mb-4">사전 게시판</h1>
 
       {/* 필터 & 검색 */}
       <div className="flex flex-col md:flex-row gap-4 justify-between mb-4">

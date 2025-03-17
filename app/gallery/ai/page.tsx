@@ -154,21 +154,21 @@ const VertextGalleryPage = () => {
       {/* 모달 */}
       {selectedImage && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-95 flex flex-col items-center justify-center z-50 p-4">
-          <img src={selectedImage.imageUrl} alt={selectedImage.prompt} className="max-w-xl max-h-[60vh] rounded-md border border-gray-700 mb-8" />
+          <img src={selectedImage.imageUrl} alt={selectedImage.prompt} className="max-w-xl max-h-[40vh] md:max-h-[60vh] rounded-md border border-gray-700 mb-8" />
           
           {/* 작성자 정보 */}
           <div className="flex items-center gap-2 mb-2">
             {users[selectedImage.uid]?.picture ? (
-              <img src={users[selectedImage.uid].picture} alt={users[selectedImage.uid].name} className="w-12 h-12 rounded-full" />
+              <img src={users[selectedImage.uid].picture} alt={users[selectedImage.uid].name} className="w-6 h-6 md:w-12 md:h-12 rounded-full" />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gray-600" />
+              <div className="w-6 h-6 md:w-12 md:h-12 rounded-full bg-gray-600" />
             )}
-            <span className="text-xl text-gray-300">{users[selectedImage.uid]?.name || "Unknown"}</span>
+            <span className="text-md md:text-xl text-gray-300">{users[selectedImage.uid]?.name || "Unknown"}</span>
 
-            <p className="text-gray-400 ml-8">{new Date(selectedImage.createdAt.seconds * 1000).toLocaleString()}</p>
+            <p className="text-sm md:text-lg text-gray-400 ml-8">{new Date(selectedImage.createdAt.seconds * 1000).toLocaleString()}</p>
           </div>
 
-          <p className="w-[60%] text-white text-center my-8"><strong>Prompt:</strong> {selectedImage.prompt}</p>
+          <p className="w-fuill md:w-[60%] text-xs md:text-lg text-white text-center my-8"><strong>Prompt:</strong> {selectedImage.prompt}</p>
 
           <div className="flex gap-4">
             <button

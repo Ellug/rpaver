@@ -28,7 +28,7 @@ export default function Navbar() {
       subMenu: [
         { label: "자유", route: "/board/free" },
         { label: "캐릭터", route: "/board/character" },
-        { label: "아이템", route: "/board/item" },
+        { label: "사전", route: "/board/item" },
         { label: "히스토리", route: "/board/history" },
       ] 
     },

@@ -59,7 +59,7 @@ export default function ItemDetailPage() {
             author: itemData.author || "unknown",
           });
         } else {
-          alert("해당 아이템을 찾을 수 없습니다.");
+          alert("해당 사전을 찾을 수 없습니다.");
           router.back();
         }
       } catch (error) {
@@ -95,47 +95,41 @@ export default function ItemDetailPage() {
         }
       }
 
-      alert("아이템이 삭제되었습니다.");
+      alert("사전이 삭제되었습니다.");
       router.push("/board/item");
     } catch (error) {
-      console.error("🔥 아이템 삭제 실패:", error);
+      console.error("🔥 사전 삭제 실패:", error);
       alert("삭제 중 오류가 발생했습니다.");
     }
     setLoading(false);
   };
 
   if (loading) return <LoadingModal />;
-  if (!item) return <div className="text-center text-gray-400 mt-10">아이템을 찾을 수 없습니다.</div>;
+  if (!item) return <div className="text-center text-gray-400 mt-10">게시글을 찾을 수 없습니다.</div>;
 
   return (
     <div className="max-w-6xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative">
       
-      {/* 🔹 작성자 정보 */}
-      <div className="flex justify-end items-center gap-3 mb-4">
-        <img src={authorData.picture} alt={authorData.name} className="w-10 h-10 rounded-full border border-gray-500" />
-        <p className="text-lg font-semibold">{authorData.name}</p>
-      </div>
-
-      {/* 🔹 아이템 정보 */}
+      {/* 사전 정보 */}
       <div className="text-center mt-6">
         <h1 className="text-3xl font-bold text-gold">{item.name}</h1>
         <p className="text-gray-400">{item.category}</p>
       </div>
 
-      {/* 🔹 아이템 이미지 슬라이더 */}
+      {/* 이미지 슬라이더 */}
       <div className="relative flex justify-center mb-6">
-        <div className="w-full">
+        <div className="w-[95%]">
           {item.pages.length > 0 && item.pages[0].imageUrl ? (
             <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight >
               {item.pages.map((page, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  {/* 🔹 이미지 영역 */}
+                <div key={index} className="flex flex-col items-center h-[100vh]">
+                  {/* 이미지 영역 */}
                   {page.imageUrl ? (
                     <img
                       src={page.imageUrl}
                       alt={`페이지 ${index + 1}`}
                       tabIndex={-1}
-                      className="rounded-lg w-full h-[512px] object-contain cursor-pointer hover:scale-[1.02] transition-transform"
+                      className="rounded-lg w-[90%] mx-auto h-[250px] md:h-[400px] object-contain cursor-pointer hover:scale-[1.02] transition-transform"
                       onClick={() => setSelectedImage(page.imageUrl)}
                     />
                   ) : (
@@ -144,8 +138,8 @@ export default function ItemDetailPage() {
                     </div>
                   )}
 
-                  {/* 🔹 페이지 설명 영역 (p 태그 줄바꿈 적용) */}
-                  <div className="w-[95%] md:w-[80%] my-8 md:my-12 mx-auto text-gray-300">
+                  {/* 페이지 설명 영역 (p 태그 줄바꿈 적용) */}
+                  <div className="w-[95%] md:w-[80%] my-8 md:my-12 mx-auto text-gray-300 overflow-y-auto">
                     <h3 className="text-xl mb-4 font-semibold text-gold">Page {index + 1}</h3>
                     <hr className="mb-4 opacity-30"/>
                     <FormatText text={page.detail} />
@@ -161,8 +155,17 @@ export default function ItemDetailPage() {
         </div>
       </div>
 
-      <p className="mt-20 text-gray-400">마지막 수정일: {new Date(item.updatedAt).toLocaleDateString("ko-KR")}</p>
-      <p className="mt-2 text-gray-400">등록일: {new Date(item.created).toLocaleDateString("ko-KR")}</p>
+      {/* 작성자 정보 */}
+      <div className="flex justify-between my-8">
+        <div>
+          <p className="text-gray-400">마지막 수정일: {new Date(item.updatedAt).toLocaleDateString("ko-KR")}</p>
+          <p className="mt-2 text-gray-400">등록일: {new Date(item.created).toLocaleDateString("ko-KR")}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <img src={authorData.picture} alt={authorData.name} className="w-10 h-10 rounded-full border border-gray-500" />
+          <p className="text-lg font-semibold">{authorData.name}</p>
+        </div>
+      </div>
 
       {/* 🔹 버튼 그룹 */}
       <div className="flex justify-center gap-4 mt-12 mb-4">

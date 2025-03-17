@@ -65,7 +65,7 @@ export default function ImageLoader({ character, onClose, setImages }: ImageLoad
   // 불러오기 버튼 클릭 시 이미지 이동 요청
   const handleMoveImages = async () => {
     if (selectedImages.length === 0) {
-      alert("📌 이동할 이미지를 선택해주세요.");
+      alert("📌 복사할 이미지를 선택해주세요.");
       return;
     }
   
@@ -97,7 +97,7 @@ export default function ImageLoader({ character, onClose, setImages }: ImageLoad
   
       const result = await response.json();
       if (result.success) {
-        alert("✅ 이미지가 정상적으로 이동되었습니다.");
+        alert("✅ 이미지가 정상적으로 복사되었습니다.");
   
         // 업데이트된 스토리지 이미지로 갱신
         const newUrls = await Promise.all(
@@ -111,11 +111,11 @@ export default function ImageLoader({ character, onClose, setImages }: ImageLoad
   
         onClose();
       } else {
-        alert(`⚠️ 이동 실패: ${result.error}`);
+        alert(`⚠️ 복사 실패: ${result.error}`);
       }
     } catch (error) {
-      console.error("🔥 이미지 이동 오류:", error);
-      alert("❌ 이미지 이동 중 오류가 발생했습니다.");
+      console.error("🔥 이미지 복사 오류:", error);
+      alert("❌ 이미지 복사 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }

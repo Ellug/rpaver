@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { FirebaseError } from "firebase/app";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -24,17 +23,7 @@ export default function LoginPage() {
       alert("이메일과 비밀번호를 입력하세요.");
       return;
     }
-    try {
-      await login(email, password);
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        alert("로그인 실패")
-        console.error("로그인 실패:", error.message);
-      } else {
-        alert("로그인 실패")
-        console.error("알 수 없는 오류 발생:", error);
-      }
-    }
+    await login(email, password);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
