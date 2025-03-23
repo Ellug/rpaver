@@ -7,6 +7,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 import { db, storage } from "@/libs/firebaseConfig";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingModal from "@/components/LoadingModal";
+import FormatGuide from "@/components/FormateGuide";
 
 interface PageData {
   imageUrl: string;
@@ -21,6 +22,7 @@ export default function EditItemPage() {
   const [formData, setFormData] = useState({ category: "", name: "" });
   const [pages, setPages] = useState<PageData[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [showHelp, setShowHelp] = useState(false)
   const [loading, setLoading] = useState<boolean>(true);
 
   // 🔹 Firestore에서 기존 데이터 불러오기
@@ -196,6 +198,20 @@ export default function EditItemPage() {
 
           {/* 설명 입력 */}
           <div className="mt-2">
+            {/* 우측: 버튼 그룹 */}
+            <div className="flex flex-col items-end gap-4">
+              {/* 도움말 버튼 */}
+              <div className="relative">
+                <button
+                  type="button"
+                  className="px-3 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-600"
+                  onClick={() => setShowHelp(!showHelp)}
+                >
+                  {showHelp ? "도움말 닫기" : "도움말"}
+                </button>
+                {showHelp && <FormatGuide show={showHelp} onClose={() => setShowHelp(false)} />}
+              </div>
+            </div>
             <label className="block font-medium">설명</label>
             <textarea value={pages[currentPage]?.detail} onChange={(e) => updatePage("detail", e.target.value)} className="w-full border px-3 py-2 text-black rounded-md h-32 resize-none" />
           </div>

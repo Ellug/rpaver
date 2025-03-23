@@ -119,39 +119,33 @@ export default function ItemDetailPage() {
       {/* 이미지 슬라이더 */}
       <div className="relative flex justify-center mb-6">
         <div className="w-[95%]">
-          {item.pages.length > 0 && item.pages[0].imageUrl ? (
-            <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight >
-              {item.pages.map((page, index) => (
-                <div key={index} className="flex flex-col items-center h-[100vh]">
-                  {/* 이미지 영역 */}
-                  {page.imageUrl ? (
-                    <img
-                      src={page.imageUrl}
-                      alt={`페이지 ${index + 1}`}
-                      tabIndex={-1}
-                      className="rounded-lg w-[90%] mx-auto h-[250px] md:h-[400px] object-contain cursor-pointer hover:scale-[1.02] transition-transform"
-                      onClick={() => setSelectedImage(page.imageUrl)}
-                    />
-                  ) : (
-                    <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
-                      이미지 없음
-                    </div>
-                  )}
-
-                  {/* 페이지 설명 영역 (p 태그 줄바꿈 적용) */}
-                  <div className="w-[95%] md:w-[80%] my-8 md:my-12 mx-auto text-gray-300 overflow-y-auto">
-                    <h3 className="text-xl mb-4 font-semibold text-gold">Page {index + 1}</h3>
-                    <hr className="mb-4 opacity-30"/>
-                    <FormatText text={page.detail} />
+          <Slider dots infinite speed={200} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight >
+            {item.pages.map((page, index) => (
+              <div key={index} className="flex flex-col items-center h-[100vh]">
+                {/* 이미지 영역 */}
+                {page.imageUrl ? (
+                  <img
+                    src={page.imageUrl}
+                    alt={`페이지 ${index + 1}`}
+                    tabIndex={-1}
+                    className="rounded-lg w-[90%] mx-auto h-[250px] md:h-[400px] object-contain cursor-pointer hover:scale-[1.02] transition-transform"
+                    onClick={() => setSelectedImage(page.imageUrl)}
+                  />
+                ) : (
+                  <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
+                    이미지 없음
                   </div>
+                )}
+
+                {/* 페이지 설명 영역 (p 태그 줄바꿈 적용) */}
+                <div className="w-[95%] md:w-[80%] my-8 md:my-12 mx-auto text-gray-300 overflow-y-auto">
+                  <h3 className="text-xl mb-4 font-semibold text-gold">Page {index + 1}</h3>
+                  <hr className="mb-4 opacity-30"/>
+                  <FormatText text={page.detail} />
                 </div>
-              ))}
-            </Slider>
-          ) : (
-            <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
-              내용 없음
-            </div>
-          )}
+              </div>
+            ))}
+          </Slider>
         </div>
       </div>
 

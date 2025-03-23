@@ -7,6 +7,7 @@ import { db, storage } from "@/libs/firebaseConfig";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import LoadingModal from "@/components/LoadingModal";
+import FormatGuide from "@/components/FormateGuide";
 
 interface PageData {
   imageUrl: string;
@@ -20,6 +21,7 @@ export default function AddItemPage() {
   const [formData, setFormData] = useState({ category: "", name: "" });
   const [pages, setPages] = useState<PageData[]>([{ imageUrl: "", imageFile: null, detail: "" }]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [showHelp, setShowHelp] = useState(false)
   const [loading, setLoading] = useState<boolean>(false);
 
   // 입력값 변경 핸들러
@@ -195,6 +197,20 @@ export default function AddItemPage() {
 
           {/* 설명 입력 */}
           <div className="mt-2">
+            {/* 우측: 버튼 그룹 */}
+            <div className="flex flex-col items-end gap-4">
+              {/* 도움말 버튼 */}
+              <div className="relative">
+                <button
+                  type="button"
+                  className="px-3 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-600"
+                  onClick={() => setShowHelp(!showHelp)}
+                >
+                  {showHelp ? "도움말 닫기" : "도움말"}
+                </button>
+                {showHelp && <FormatGuide show={showHelp} onClose={() => setShowHelp(false)} />}
+              </div>
+            </div>
             <label className="block font-medium">설명</label>
             <textarea
               value={pages[currentPage].detail}
