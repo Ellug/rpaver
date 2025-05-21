@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CharacterProvider } from "@/contexts/CharacterContext";
 import { UserProvider } from "@/contexts/UserContext";
+import { YearProvider } from "@/contexts/YearContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,10 +35,12 @@ export default function RootLayout({
         <AuthProvider>
           <UserProvider>
             <CharacterProvider>
-              <Navbar />
-              <div className="mt-16">
-                {children}
-              </div>
+              <YearProvider>
+                <Navbar />
+                <div className="mt-16">
+                  {children}
+                </div>
+              </YearProvider>
             </CharacterProvider>
           </UserProvider>
         </AuthProvider>

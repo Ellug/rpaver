@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCharacterContext } from "@/contexts/CharacterContext";
 import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
+import { useYearContext } from "@/contexts/YearContext";
 
 type SortKey = "birth" | "height" | "weight" | "chest";
 
@@ -34,9 +35,10 @@ const columns: Column[] = [
 export default function CharacterPage() {
   const router = useRouter();
   const { characters } = useCharacterContext();
+  const { currentYear, setCurrentYear } = useYearContext();
+
   const [sortedCharacters, setSortedCharacters] = useState<Character[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [currentYear, setCurrentYear] = useState<string>("552");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState<SortKey | "birth">("birth");
   const [selectedSeries, setSelectedSeries] = useState<string>("전체");
@@ -212,8 +214,6 @@ export default function CharacterPage() {
             </select>
           </div>
         </div>
-
-
         
         <div className="flex items-center gap-2">
           <label htmlFor="searchInput" className="text-gray-200 font-medium">검색:</label>
@@ -230,13 +230,13 @@ export default function CharacterPage() {
 
         <div className="flex gap-2">
           <button onClick={() => toggleSortOrder("height")} className="px-4 py-2 bg-purple-900 text-white rounded-md hover:bg-purple-700 transition">
-            키 {sortKey === "height" && (sortOrder === "desc" ? "↓" : "↑")}
+            신장 {sortKey === "height" && (sortOrder === "desc" ? "↓" : "↑")}
           </button>
           <button onClick={() => toggleSortOrder("weight")} className="px-4 py-2 bg-red-900 text-white rounded-md hover:bg-red-700 transition">
             체중 {sortKey === "weight" && (sortOrder === "desc" ? "↓" : "↑")}
           </button>
           <button onClick={() => toggleSortOrder("chest")} className="px-4 py-2 bg-yellow-900 text-white rounded-md hover:bg-yellow-700 transition">
-            가슴 {sortKey === "chest" && (sortOrder === "desc" ? "↓" : "↑")}
+            흉부 {sortKey === "chest" && (sortOrder === "desc" ? "↓" : "↑")}
           </button>
         </div>
 

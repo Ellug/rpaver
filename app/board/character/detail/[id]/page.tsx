@@ -12,12 +12,15 @@ import "slick-carousel/slick/slick-theme.css";
 import ImageModal from "@/components/ImageModal";
 import { fetchImagesFromStorage } from "@/utils/Storage";
 import FormatText from "@/utils/FormatText";
+import { useYearContext } from "@/contexts/YearContext";
 
 export default function CharacterDetailPage() {
   const router = useRouter();
   const { id } = useParams();
   const characterId = Array.isArray(id) ? id[0] : id;
   const decodedId = characterId ? decodeURIComponent(characterId) : "";
+
+  const { currentYear } = useYearContext();
 
   const [character, setCharacter] = useState<CharacterDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -119,7 +122,7 @@ export default function CharacterDetailPage() {
         {[
           { label: "이름", value: character.name },
           { label: "성(가문)", value: character.family },
-          { label: "출생", value: character.birth },
+          { label: "출생", value: character.birth ? `${character.birth} - ( ${currentYear}연도 기준 ${parseInt(currentYear) - parseInt(character.birth)}세 )` : "-" },
           { label: "출신", value: character.country },
           { label: "성별", value: character.gender },
           { label: "칭호", value: character.title },
