@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import LazyImage from "@/components/LazyImage";
 
 export default function CharacterGallery() {
   const router = useRouter();
@@ -88,11 +89,17 @@ export default function CharacterGallery() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.length > 0 ? (
                 images.map((image, index) => (
-                  <img
+                  // <img
+                  //   key={index}
+                  //   src={image}
+                  //   alt={`캐릭터 ${index}`}
+                  //   className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
+                  //   onClick={() => setSelectedImage(image)}
+                  // />
+                  <LazyImage
                     key={index}
                     src={image}
                     alt={`캐릭터 ${index}`}
-                    className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
                     onClick={() => setSelectedImage(image)}
                   />
                 ))

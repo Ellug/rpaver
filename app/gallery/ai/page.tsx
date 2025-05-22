@@ -8,6 +8,7 @@ import LoadingModal from '@/components/LoadingModal';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
+import LazyImage from '@/components/LazyImage';
 
 type ImageData = {
   id: string;
@@ -139,13 +140,11 @@ const VertextGalleryPage = () => {
       >
         {images.map((image) => (
           <div key={image.id} className="grid-item overflow-hidden rounded-md invisible">
-            <img
+            <LazyImage
               src={image.imageUrl}
               alt={image.prompt}
-              loading="lazy"
-              className="content w-full hover:scale-[1.02] cursor-pointer"
-              onLoad={resizeAllGridItems}
               onClick={() => setSelectedImage(image)}
+              onLoad={resizeAllGridItems}
             />
           </div>
         ))}

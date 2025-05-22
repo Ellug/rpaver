@@ -215,7 +215,7 @@ export default function AddItemPage() {
             <textarea
               value={pages[currentPage].detail}
               onChange={(e) => updatePage("detail", e.target.value)}
-              className="w-full border px-3 py-2 text-black rounded-md h-32 resize-none"
+              className="w-full border px-3 py-2 text-black rounded-md h-80 resize-none"
               placeholder="설명 입력"
             />
           </div>

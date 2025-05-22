@@ -63,13 +63,13 @@ export default function CharacterDetailPage() {
   if (loading) return <LoadingModal />;
   if (!character) return <div className="text-center text-gray-400 mt-10">캐릭터 정보를 찾을 수 없습니다.</div>;
 
-  // 🔹 캐릭터 삭제 함수
+  // 캐릭터 삭제 함수
   const handleDeleteCharacter = async () => {
     if (!decodedId) return;
     setLoading(true);
 
     try {
-      // 🔹 Firestore에서 캐릭터 문서 삭제
+      // Firestore에서 캐릭터 문서 삭제
       await deleteDoc(doc(db, "character", decodedId));
       await deleteDoc(doc(db, "character_detail", decodedId));
 
@@ -83,7 +83,7 @@ export default function CharacterDetailPage() {
     }
   };
 
-  // 수정 버튼 클릭 시 이동
+  // 수정 버튼 클릭 시 수정 페이지로 이동
   const handleEditClick = () => {
     router.push(`/board/character/edit/${encodeURIComponent(decodedId)}`);
   };

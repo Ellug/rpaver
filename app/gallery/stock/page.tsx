@@ -6,6 +6,7 @@ import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import ImageModal from "@/components/ImageModal";
 import LoadingModal from "@/components/LoadingModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
+import LazyImage from "@/components/LazyImage";
 
 export default function GalleryStock() {
   const [gallery, setGallery] = useState<{ folder: string; images: string[] }[]>([]);
@@ -144,11 +145,17 @@ export default function GalleryStock() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {images.length > 0 ? (
                   images.map((image, index) => (
-                    <img
+                    // <img
+                    //   key={index}
+                    //   src={image}
+                    //   alt={`이미지 ${index}`}
+                    //   className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
+                    //   onClick={() => setSelectedImage(image)}
+                    // />
+                    <LazyImage
                       key={index}
                       src={image}
                       alt={`이미지 ${index}`}
-                      className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
                       onClick={() => setSelectedImage(image)}
                     />
                   ))
