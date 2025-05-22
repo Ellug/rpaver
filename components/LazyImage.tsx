@@ -24,7 +24,7 @@ const LazyImage = ({ src, alt, onClick, onLoad }: LazyImageProps) => {
       },
       {
         threshold: 0.1,
-        rootMargin: "800px 0px", // <-- 감지 범위 확장
+        rootMargin: "1080px 0px", // <-- 감지 범위 확장
       }
     );
 
