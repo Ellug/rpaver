@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { text2imgSD } from "@/contexts/txt2img";
 
 interface Txt2ImgPayload {
   prompt: string;
@@ -39,7 +40,7 @@ export default function StableTextGenPage() {
     setGeneratedImage(null);
 
     try {
-      const requestBody: Txt2ImgPayload = {
+      const payload: Txt2ImgPayload & { uid: string } = {
         prompt,
         negative_prompt: negativePrompt,
         steps,
@@ -47,23 +48,15 @@ export default function StableTextGenPage() {
         width,
         height,
         sampler_index: sampler,
-        ...(useKarras && ["DPM++ 2M SDE", "DPM++ 2S a", "DPM++ 3M SDE"].includes(sampler)
-          ? { scheduler: "Karras" }
-          : {}),
+        uid: "test-user", // 🔧 로그인된 사용자 UID를 동적으로 넣는 구조면 수정
       };
 
-      const response = await fetch("/api/txt2img", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-      if (data.images && data.images.length > 0) {
-        setGeneratedImage(`data:image/png;base64,${data.images[0]}`);
+      if (useKarras && ["DPM++ 2M SDE", "DPM++ 2S a", "DPM++ 3M SDE"].includes(sampler)) {
+        payload.scheduler = "karras";
       }
+
+      const result = await text2imgSD(payload);
+      setGeneratedImage(result.imageUrl);
     } catch (error) {
       console.error("이미지 생성 실패:", error);
       alert("이미지 생성 중 오류가 발생했습니다.");

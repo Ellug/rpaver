@@ -1,29 +1,3 @@
-// export async function POST(req: NextRequest) {
-//   try {
-//     const body = await req.json();
-//     console.log("요청 내용:", body); // 디버깅 로그 추가
-
-//     const sdResponse = await fetch("https://rpavergen.loca.lt/sdapi/v1/txt2img", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(body),
-//     });
-
-//     const raw = await sdResponse.text(); // 강제로 text로 받음
-//     console.log("Stable Diffusion 응답 상태:", sdResponse.status);
-//     console.log("Stable Diffusion 응답 본문:", raw);
-
-//     if (!sdResponse.ok) {
-//       return NextResponse.json({ error: "Stable Diffusion 요청 실패", detail: raw }, { status: 500 });
-//     }
-
-//     return NextResponse.json(JSON.parse(raw));
-//   } catch (error) {
-//     console.error("API 에러:", error);
-//     return NextResponse.json({ error: "서버 오류", detail: String(error) }, { status: 500 });
-//   }
-// }
-
 import { NextRequest, NextResponse } from "next/server";
 import { storage, db } from "@/libs/firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
