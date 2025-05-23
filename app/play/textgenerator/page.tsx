@@ -50,14 +50,14 @@ export default function StableTextGenPage() {
         width,
         height,
         sampler_index: sampler,
-        uid: userData?.uid || "none",
+        uid: userData?.uid || "anonymous",
         ...(useKarras &&
         ["DPM++ 2M SDE", "DPM++ 2S a", "DPM++ 3M SDE"].includes(sampler)
           ? { scheduler: "karras" }
           : {}),
       };
 
-      const response = await fetch("https://rpavergen.loca.lt/txt2img", {
+      const response = await fetch("/api/txt2img", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,15 +66,16 @@ export default function StableTextGenPage() {
       });
 
       const data = await response.json();
+
       if (data.success && data.imageUrl) {
         setGeneratedImage(data.imageUrl);
       } else {
         console.error("서버 응답 오류:", data);
-        alert("이미지 생성 중 오류가 발생했습니다.");
+        alert("이미지 생성 실패: " + (data.detail || "원인을 알 수 없습니다."));
       }
     } catch (error) {
       console.error("이미지 생성 실패:", error);
-      alert("이미지 생성 중 오류가 발생했습니다.");
+      alert("이미지 생성 중 네트워크 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }

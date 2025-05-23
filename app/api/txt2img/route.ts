@@ -1,32 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/libs/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log("요청 내용:", body);
 
-    const { prompt, negative_prompt, uid = "anonymous", ...rest } = body;
-
-    // Firestore에 비동기 요청 문서 생성
-    const docRef = await addDoc(collection(db, "generator"), {
-      uid,
-      prompt,
-      negative_prompt,
-      status: "pending",
-      createdAt: serverTimestamp(),
-      options: rest,
+    // 비동기 백엔드 워커에게 요청 보내되 응답은 기다리지 않음
+    fetch("https://rpavergen.loca.lt/txt2img", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch((err) => {
+      console.error("🔥 백엔드 워커 전송 실패:", err);
     });
 
-    // 이 ID로 클라이언트는 결과를 폴링하거나 실시간 리스닝할 수 있음
     return NextResponse.json({
-      success: true,
-      message: "생성 요청이 접수되었습니다. 결과는 추후 확인하세요.",
-      imageId: docRef.id,
+      message: "요청 전송 완료. 결과는 자동으로 처리됩니다.",
     });
   } catch (error) {
-    console.error("API 에러:", error);
-    return NextResponse.json({ error: "서버 오류", detail: String(error) }, { status: 500 });
+    console.error("🔥 API 중계 에러:", error);
+    return NextResponse.json(
+      { error: "중계 서버 오류", detail: String(error) },
+      { status: 500 }
+    );
   }
 }
