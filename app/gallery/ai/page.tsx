@@ -5,7 +5,6 @@ import { collection, getDocs, query, orderBy, doc, deleteDoc } from 'firebase/fi
 import { db, storage } from '@/libs/firebaseConfig';
 import { ref, deleteObject } from 'firebase/storage';
 import LoadingModal from '@/components/LoadingModal';
-import { useRouter } from 'next/navigation';
 import { useUserContext } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 import LazyImage from '@/components/LazyImage';
@@ -22,7 +21,6 @@ type ImageData = {
 };
 
 const VertextGalleryPage = () => {
-  const router = useRouter();
   const { users } = useUserContext();
   const { userData } = useAuth();
   const [images, setImages] = useState<ImageData[]>([]);
@@ -90,10 +88,10 @@ const VertextGalleryPage = () => {
   }, [images]);
 
   // 프롬프트 재사용
-  const handleReusePrompt = (prompt: string) => {
-    sessionStorage.setItem("reusePrompt", prompt);
-    router.push("/play/vertexai");
-  };
+  // const handleReusePrompt = (prompt: string) => {
+  //   sessionStorage.setItem("reusePrompt", prompt);
+  //   router.push("/play/vertexai");
+  // };
 
   // 삭제 기능
   const handleDelete = async (image: ImageData) => {
@@ -170,12 +168,12 @@ const VertextGalleryPage = () => {
           <p className="w-fuill md:w-[60%] text-xs md:text-lg text-white text-center my-8"><strong>Prompt:</strong> {selectedImage.prompt}</p>
 
           <div className="flex gap-4">
-            <button
+            {/* <button
               onClick={() => handleReusePrompt(selectedImage.prompt)}
               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-4 rounded-md hover:opacity-90 transition"
             >
               이 프롬프트로 생성하기
-            </button>
+            </button> */}
 
             {(userData?.uid === selectedImage.uid || userData?.admin) && (
               <button

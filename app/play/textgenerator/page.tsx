@@ -29,7 +29,7 @@ export default function StableTextGenPage() {
   const [cfgScale, setCfgScale] = useState(5);
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState(1024);
-  const [steps, setSteps] = useState(60);
+  const [steps, setSteps] = useState(80);
   const generatedImageRef = useRef<HTMLImageElement>(null);
 
   const handleGenerate = async () => {
@@ -53,8 +53,8 @@ export default function StableTextGenPage() {
         uid: userData?.uid || "anonymous",
         ...(useKarras &&
         ["DPM++ 2M SDE", "DPM++ 2S a", "DPM++ 3M SDE"].includes(sampler)
-          ? { scheduler: "karras" }
-          : {}),
+          ? { scheduler: "Karras" }
+          : { scheduler: "Automatic" }),
       };
 
       const response = await fetch("/api/txt2img", {
@@ -67,11 +67,8 @@ export default function StableTextGenPage() {
 
       const data = await response.json();
 
-      if (data.success && data.imageUrl) {
-        setGeneratedImage(data.imageUrl);
-      } else {
-        console.error("서버 응답 오류:", data);
-        alert("이미지 생성 실패: " + (data.detail || "원인을 알 수 없습니다."));
+      if (data) {
+        alert("이미지 생성 요청. 생성이 완료되면 알람 드립니다.");
       }
     } catch (error) {
       console.error("이미지 생성 실패:", error);
