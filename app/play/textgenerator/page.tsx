@@ -1,7 +1,7 @@
 "use client";
 
+import { useAuth } from "@/contexts/AuthContext";
 import React, { useEffect, useRef, useState } from "react";
-import { text2imgSD } from "@/contexts/txt2img";
 
 interface Txt2ImgPayload {
   prompt: string;
@@ -18,6 +18,8 @@ const initialPrompt = "masterpiece, best quality, amazing quality, 4k, very aest
 const initialNegativePrompt = "modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, extra digits, fewer digits, cropped, very displeasing, (worst quality, bad quality:1.2), sketch, jpeg artifacts, signature, watermark, username, (censored, bar_censor, mosaic_censor:1.2), simple background, conjoined, bad ai-generated"
 
 export default function StableTextGenPage() {
+  const { userData } = useAuth();
+
   const [prompt, setPrompt] = useState(initialPrompt);
   const [negativePrompt, setNegativePrompt] = useState(initialNegativePrompt);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export default function StableTextGenPage() {
     setGeneratedImage(null);
 
     try {
-      const payload: Txt2ImgPayload & { uid: string } = {
+      const requestBody: Txt2ImgPayload & { uid: string } = {
         prompt,
         negative_prompt: negativePrompt,
         steps,
@@ -48,15 +50,28 @@ export default function StableTextGenPage() {
         width,
         height,
         sampler_index: sampler,
-        uid: "test-user", // 🔧 로그인된 사용자 UID를 동적으로 넣는 구조면 수정
+        uid: userData?.uid || "none",
+        ...(useKarras &&
+        ["DPM++ 2M SDE", "DPM++ 2S a", "DPM++ 3M SDE"].includes(sampler)
+          ? { scheduler: "karras" }
+          : {}),
       };
 
-      if (useKarras && ["DPM++ 2M SDE", "DPM++ 2S a", "DPM++ 3M SDE"].includes(sampler)) {
-        payload.scheduler = "karras";
-      }
+      const response = await fetch("https://rpavergen.loca.lt/txt2img", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
 
-      const result = await text2imgSD(payload);
-      setGeneratedImage(result.imageUrl);
+      const data = await response.json();
+      if (data.success && data.imageUrl) {
+        setGeneratedImage(data.imageUrl);
+      } else {
+        console.error("서버 응답 오류:", data);
+        alert("이미지 생성 중 오류가 발생했습니다.");
+      }
     } catch (error) {
       console.error("이미지 생성 실패:", error);
       alert("이미지 생성 중 오류가 발생했습니다.");
@@ -78,7 +93,7 @@ export default function StableTextGenPage() {
       value: cfgScale,
       min: 1,
       max: 20,
-      step: 0.5,
+      step: 0.1,
       setValue: (v: number) => setCfgScale(v),
       unit: "",
     },
