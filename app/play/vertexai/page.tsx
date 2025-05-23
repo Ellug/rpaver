@@ -6,7 +6,7 @@ import LoadingModal from "@/components/LoadingModal";
 import { generateAndSaveImage } from "@/utils/VertexGen";
 import { ImagenAspectRatio } from "firebase/vertexai";
 
-export default function AIGeneratorPage() {
+export default function StableGenPage() {
   const { userData } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);

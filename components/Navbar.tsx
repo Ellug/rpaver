@@ -49,6 +49,8 @@ export default function Navbar() {
       name: "놀이터", 
       subMenu: [
         { label: "Vertex", route: "/play/vertexai" },
+        { label: "TextGenerator", route: "/play/textgenerator" },
+        { label: "Img2Img", route: "/play/imgtoimg" },
       ] 
     },
   ];
