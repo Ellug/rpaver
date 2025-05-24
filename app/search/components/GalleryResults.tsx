@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import LoadingModal from "@/components/LoadingModal";
 import ImageModal from "@/components/ImageModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
+import { useImageNavigator } from "@/utils/useImageNavigator";
 
 
 interface GalleryResultsProps {
@@ -22,8 +23,9 @@ interface FolderData {
 
 export default function GalleryResults({ queryText }: GalleryResultsProps) {
   const [galleryData, setGalleryData] = useState<FolderData[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { selectedItem, open, close, next, prev } = useImageNavigator<FileData>(galleryData.map(f => f.images));
 
   useEffect(() => {
     if (!queryText) return;
@@ -57,12 +59,16 @@ export default function GalleryResults({ queryText }: GalleryResultsProps) {
 
   return (
     <div>
-      {galleryData.map((folder) => (
+      {galleryData.map((folder, folderIndex) => (
         <div key={folder.folderName} className="border border-gray-300 p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold mb-3">📂 {folder.folderName}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {folder.images.map((img) => (
-              <div key={img.name} className="relative cursor-pointer hover:scale-[1.05] transition" onClick={() => setSelectedImage(img.url)}>
+            {folder.images.map((img, index) => (
+              <div
+                key={img.name}
+                className="relative cursor-pointer hover:scale-[1.05] transition"
+                onClick={() => open(folderIndex, index)}
+              >
                 <img src={img.url} alt={img.name} className="w-full h-auto rounded-lg shadow-sm" />
                 <p className="text-sm text-gray-600 mt-1 text-center">{img.name}</p>
               </div>
@@ -71,7 +77,14 @@ export default function GalleryResults({ queryText }: GalleryResultsProps) {
         </div>
       ))}
 
-      {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
+      {selectedItem && (
+        <ImageModal
+          imageUrl={selectedItem.url}
+          onClose={close}
+          onNext={next}
+          onPrev={prev}
+        />
+      )}
     </div>
   );
 }

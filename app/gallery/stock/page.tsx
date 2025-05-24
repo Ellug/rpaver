@@ -7,14 +7,16 @@ import ImageModal from "@/components/ImageModal";
 import LoadingModal from "@/components/LoadingModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
 import LazyImage from "@/components/LazyImage";
+import { useImageNavigator } from "@/utils/useImageNavigator";
 
 export default function GalleryStock() {
   const [gallery, setGallery] = useState<{ folder: string; images: string[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<{ [key: string]: boolean }>({});
   const [selectedFolder, setSelectedFolder] = useState<string>("");
   const [newFolder, setNewFolder] = useState<string>("");
+
+  const { selectedItem, open, close, next, prev } = useImageNavigator<string>(gallery.map((g) => g.images));
 
   // 저장소 폴더 가져오기
   useEffect(() => {
@@ -129,7 +131,7 @@ export default function GalleryStock() {
 
       {/* 저장소 리스트 */}
       <div className="space-y-6">
-        {gallery.map(({ folder, images }) => (
+        {gallery.map(({ folder, images }, folderIndex) => (
           <div key={folder} className="border border-gray-700 p-4 rounded-lg">
             {/* 폴더 클릭 시 이미지 리스트 토글 */}
             <h2
@@ -145,18 +147,11 @@ export default function GalleryStock() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {images.length > 0 ? (
                   images.map((image, index) => (
-                    // <img
-                    //   key={index}
-                    //   src={image}
-                    //   alt={`이미지 ${index}`}
-                    //   className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
-                    //   onClick={() => setSelectedImage(image)}
-                    // />
                     <LazyImage
                       key={index}
                       src={image}
                       alt={`이미지 ${index}`}
-                      onClick={() => setSelectedImage(image)}
+                      onClick={() => open(folderIndex, index)}
                     />
                   ))
                 ) : (
@@ -169,7 +164,14 @@ export default function GalleryStock() {
       </div>
 
       {/* 선택된 이미지가 있을 경우 모달 표시 */}
-      {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
+      {selectedItem && (
+        <ImageModal
+          imageUrl={selectedItem}
+          onClose={close}
+          onNext={next}
+          onPrev={prev}
+        />
+      )}
     </div>
   );
 }

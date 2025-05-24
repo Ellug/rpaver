@@ -13,6 +13,7 @@ import ImageModal from "@/components/ImageModal";
 import { fetchImagesFromStorage } from "@/utils/Storage";
 import FormatText from "@/utils/FormatText";
 import { useYearContext } from "@/contexts/YearContext";
+import { useImageNavigator } from "@/utils/useImageNavigator";
 
 export default function CharacterDetailPage() {
   const router = useRouter();
@@ -24,10 +25,12 @@ export default function CharacterDetailPage() {
 
   const [character, setCharacter] = useState<CharacterDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  const { selectedItem, open, close, next, prev } = useImageNavigator<string>([imageUrls]);
+
 
   useEffect(() => {
     if (!decodedId) return;
@@ -101,7 +104,7 @@ export default function CharacterDetailPage() {
                     src={img}
                     alt={character.name}
                     className="rounded-lg w-full max-h-[512px] object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => setSelectedImage(img)}
+                    onClick={() => open(0, index)} // 항상 그룹 index는 0
                   />
                 </div>
               ))}
@@ -174,7 +177,14 @@ export default function CharacterDetailPage() {
       )}
 
       {/* 이미지 확대 모달 */}
-      {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
+        {selectedItem && (
+          <ImageModal
+            imageUrl={selectedItem}
+            onClose={close}
+            onNext={next}
+            onPrev={prev}
+          />
+        )}
     </div>
   );
 }

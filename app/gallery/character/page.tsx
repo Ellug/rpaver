@@ -8,16 +8,18 @@ import LoadingModal from "@/components/LoadingModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import LazyImage from "@/components/LazyImage";
+import { useImageNavigator } from "@/utils/useImageNavigator";
 
 export default function CharacterGallery() {
   const router = useRouter();
   const { characters } = useCharacterContext();
   const [gallery, setGallery] = useState<{ folder: string; images: string[] }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showCharacterList, setShowCharacterList] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const { selectedItem, open, close, next, prev } = useImageNavigator<string>(gallery.map(f => f.images));
 
   // 캐릭터 이미지 가져오기
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function CharacterGallery() {
       <h1 className="text-2xl font-bold mb-4">캐릭터 갤러리</h1>
 
       <div className="space-y-6">
-        {gallery.map(({ folder, images }) => (
+        {gallery.map(({ folder, images }, folderIndex) => (
           <div
             key={folder}
             ref={(el) => {
@@ -78,7 +80,6 @@ export default function CharacterGallery() {
             }}
             className="border border-gray-700 p-4 rounded-lg"
           >
-            {/* 캐릭터 이름 클릭 시 상세 페이지 이동 */}
             <h2
               className="text-2xl font-semibold mb-2 cursor-pointer hover:text-gold text-gray-300"
               onClick={() => handleCharacterClick(folder)}
@@ -89,18 +90,11 @@ export default function CharacterGallery() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.length > 0 ? (
                 images.map((image, index) => (
-                  // <img
-                  //   key={index}
-                  //   src={image}
-                  //   alt={`캐릭터 ${index}`}
-                  //   className="w-full object-contain rounded-md border border-gray-600 cursor-pointer transition hover:scale-105"
-                  //   onClick={() => setSelectedImage(image)}
-                  // />
                   <LazyImage
                     key={index}
                     src={image}
                     alt={`캐릭터 ${index}`}
-                    onClick={() => setSelectedImage(image)}
+                    onClick={() => open(folderIndex, index)}
                   />
                 ))
               ) : (
@@ -160,7 +154,14 @@ export default function CharacterGallery() {
       </div>
 
       {/* 선택된 이미지가 있을 경우 모달 표시 */}
-      {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
+        {selectedItem && (
+          <ImageModal
+            imageUrl={selectedItem}
+            onClose={close}
+            onNext={next}
+            onPrev={prev}
+          />
+        )}
     </div>
   );
 }

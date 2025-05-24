@@ -14,8 +14,8 @@ interface Txt2ImgPayload {
   scheduler?: string;
 }
 
-const initialPrompt = "masterpiece, best quality, amazing quality, 4k, very aesthetic, high resolution, ultra-detailed, absurdres, newest, scenery, (dappled sunlight:1.2), rim light, backlit, dramatic shadow, 1girl, long blonde hair, blue eyes, shiny eyes, parted lips, medium breasts, puffy sleeve white dress, forest, flowers, white butterfly, looking at viewer, leaning side against tree, vines, green, arms, upper body, close-up, dutch angle, shiny skin, BREAK, dramatic shadow, depth of field, vignetting, volumetric lighting"
-const initialNegativePrompt = "modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, extra digits, fewer digits, cropped, very displeasing, (worst quality, bad quality:1.2), sketch, jpeg artifacts, signature, watermark, username, (censored, bar_censor, mosaic_censor:1.2), simple background, conjoined, bad ai-generated"
+const initialPrompt = "masterpiece, best quality, amazing quality, ultra-detailed, absurdres, extremely detailed CG unity 8k wallpaper, (photorealistic:1.2), sharp focus, professional lighting, cinematic light, beautiful face, (symmetrical face:1.2), perfect anatomy, (flawless skin:1.2), highly detailed eyes, (sparkling blue eyes:1.3), glossy eyes, eye light reflection, ambient occlusion around eyes, (close-up face:1.3), realistic skin texture, subsurface scattering, smooth shading, detailed lips, parted lips, slightly smiling expression, natural expression, Navia from Genshin Impact, no hat, long blonde hair, soft light on face, rim light, backlit, (dappled sunlight:1.2), forest background, volumetric lighting, huge breasts, puffy sleeve white dress, shiny skin, depth of field, vignetting, cinematic bokeh, leaning side against tree, scenery, flowers, white butterfly, vines, green"
+const initialNegativePrompt = "(worst quality, low quality, bad quality:1.2), jpeg artifacts, sketch, blurred, text, signature, watermark, username, mutated, deformed, ugly, disfigured, bad anatomy, long body, bad proportions, conjoined, bad ai-generated, bad hands, missing fingers, extra fingers, extra digits, fewer digits, cropped, simple background, (censored:1.2), (bad face, deformed face, disfigured face, poorly drawn face:1.4), (asymmetrical eyes, weird eyes, bad eyes:1.3), (blurred face, extra face, multiple faces, missing facial features:1.3)"
 
 export default function StableTextGenPage() {
   const { userData } = useAuth();
@@ -27,9 +27,9 @@ export default function StableTextGenPage() {
   const [sampler, setSampler] = useState("DPM++ 2S a");
   const [useKarras, setUseKarras] = useState(false);
   const [cfgScale, setCfgScale] = useState(5);
-  const [width, setWidth] = useState(1024);
-  const [height, setHeight] = useState(1024);
-  const [steps, setSteps] = useState(80);
+  const [width, setWidth] = useState(1216);
+  const [height, setHeight] = useState(1216);
+  const [steps, setSteps] = useState(50);
   const generatedImageRef = useRef<HTMLImageElement>(null);
 
   const handleGenerate = async () => {
@@ -108,7 +108,7 @@ export default function StableTextGenPage() {
       label: "Width",
       value: width,
       min: 512,
-      max: 1024,
+      max: 1214,
       step: 64,
       setValue: (v: number) => setWidth(v),
       unit: "px",
@@ -117,7 +117,7 @@ export default function StableTextGenPage() {
       label: "Height",
       value: height,
       min: 512,
-      max: 1024,
+      max: 1214,
       step: 64,
       setValue: (v: number) => setHeight(v),
       unit: "px",

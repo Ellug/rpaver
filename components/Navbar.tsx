@@ -50,7 +50,7 @@ export default function Navbar() {
       subMenu: [
         { label: "Vertex", route: "/play/vertexai" },
         { label: "TextGenerator", route: "/play/textgenerator" },
-        { label: "Img2Img", route: "/play/imgtoimg" },
+        // { label: "Img2Img", route: "/play/imgtoimg" },
       ] 
     },
   ];

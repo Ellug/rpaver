@@ -13,6 +13,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import FormatText from "@/utils/FormatText";
+import { useImageNavigator } from "@/utils/useImageNavigator";
 
 interface PageData {
   imageUrl: string;
@@ -36,7 +37,7 @@ export default function ItemDetailPage() {
 
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { selectedItem, open, close, next, prev } = useImageNavigator<string>([item?.pages.map(p => p.imageUrl) ?? []]);
 
   useEffect(() => {
     if (!id) return;
@@ -129,7 +130,7 @@ export default function ItemDetailPage() {
                     alt={`페이지 ${index + 1}`}
                     tabIndex={-1}
                     className="rounded-lg w-[90%] mx-auto h-[250px] md:h-[400px] object-contain cursor-pointer hover:scale-[1.02] transition-transform"
-                    onClick={() => setSelectedImage(page.imageUrl)}
+                    onClick={() => open(0, index)}
                   />
                 ) : (
                   <div className="w-full h-80 flex items-center justify-center bg-gray-800 rounded-lg text-gray-500">
@@ -174,7 +175,14 @@ export default function ItemDetailPage() {
         </button>
       </div>
 
-      {selectedImage && <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />}
+      {selectedItem && (
+        <ImageModal
+          imageUrl={selectedItem}
+          onClose={close}
+          onNext={next}
+          onPrev={prev}
+        />
+      )}
     </div>
   );
 }
