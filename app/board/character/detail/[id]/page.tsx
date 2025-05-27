@@ -14,6 +14,7 @@ import { fetchImagesFromStorage } from "@/utils/Storage";
 import FormatText from "@/utils/FormatText";
 import { useYearContext } from "@/contexts/YearContext";
 import { useImageNavigator } from "@/utils/useImageNavigator";
+import { useImageRenderQueue } from "@/utils/useImageRenderQueue";
 
 export default function CharacterDetailPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function CharacterDetailPage() {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   const { selectedItem, open, close, next, prev } = useImageNavigator<string>([imageUrls]);
-
+  const { renderedIndexes, handleImageLoad, handleImageError } = useImageRenderQueue(imageUrls.length);
 
   useEffect(() => {
     if (!decodedId) return;
@@ -92,20 +93,31 @@ export default function CharacterDetailPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto my-10 p-4 md:p-12 bg-gray-900 text-white rounded-lg shadow-lg relative overflow-hidden">
+    <div className="max-w-6xl mx-auto my-10 p-4 md:py-4 md:px-12 bg-gray-900 text-white rounded-lg shadow-lg relative overflow-hidden">
       {/* 캐릭터 이미지 슬라이더 */}
       {imageUrls.length > 0 && (
         <div className="relative flex justify-center">
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-5xl">
             <Slider dots infinite speed={100} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
               {imageUrls.map((img, index) => (
                 <div key={index} className="flex justify-center">
-                  <img
-                    src={img}
-                    alt={character.name}
-                    className="rounded-lg w-full max-h-[512px] object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => open(0, index)} // 항상 그룹 index는 0
-                  />
+                  <div className="text-xs pb-2">
+                    <span className="text-green-300">{index + 1}</span> / {imageUrls.length}
+                  </div>
+
+                  {renderedIndexes.has(index) ? (
+                    <img
+                      key={`img-${index}`}
+                      src={img}
+                      alt={`Slide ${index}`}
+                      className="rounded-lg w-full max-h-[712px] object-contain cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => open(0, index)}
+                      onLoad={() => handleImageLoad(index)}
+                      onError={() => handleImageError()}
+                    />
+                  ) : (
+                    <div className="w-full md:h-[512px] h-[400px] bg-gray-900 animate-pulse rounded-lg" />
+                  )}
                 </div>
               ))}
             </Slider>

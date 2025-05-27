@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 type ImageModalProps = {
   imageUrl: string;
@@ -10,9 +10,17 @@ type ImageModalProps = {
 };
 
 export default function ImageModal({ imageUrl, onClose, onPrev, onNext }: ImageModalProps) {
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden"; // 스크롤 막기
+    return () => {
+      document.body.style.overflow = "auto"; // 원복
+    };
+  }, []);
+
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50"
       onClick={onClose}
     >
       <div className="relative" onClick={(e) => e.stopPropagation()}>

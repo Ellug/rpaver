@@ -6,7 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CharacterProvider } from "@/contexts/CharacterContext";
 import { UserProvider } from "@/contexts/UserContext";
 import { YearProvider } from "@/contexts/YearContext";
-import ClientListener from "@/components/ClientListener";
+// import ClientListener from "@/components/ClientListener";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +39,7 @@ export default function RootLayout({
               <YearProvider>
                 <Navbar />
                 <div className="mt-16">
-                  <ClientListener />
+                  {/* <ClientListener /> */}
                   {children}
                 </div>
               </YearProvider>
