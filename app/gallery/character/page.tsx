@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import LoadingModal from "@/components/LoadingModal";
 import { fetchGalleryFromStorage } from "@/utils/Storage";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import LazyImage from "@/components/LazyImage";
 import { useImageNavigator } from "@/utils/useImageNavigator";
 
 export default function CharacterGallery() {
@@ -90,10 +89,11 @@ export default function CharacterGallery() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.length > 0 ? (
                 images.map((image, index) => (
-                  <LazyImage
+                  <img
                     key={index}
                     src={image}
                     alt={`캐릭터 ${index}`}
+                    loading="lazy"
                     onClick={() => open(folderIndex, index)}
                   />
                 ))

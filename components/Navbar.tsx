@@ -45,14 +45,13 @@ export default function Navbar() {
       name: "검색", 
       subMenu: [{ component: <Search setHoveredCategory={setHoveredCategory} /> }]
     },
-    {
-      name: "놀이터", 
-      subMenu: [
-        { label: "Vertex", route: "/play/vertexai" },
-        { label: "TextGenerator", route: "/play/textgenerator" },
-        // { label: "Img2Img", route: "/play/imgtoimg" },
-      ] 
-    },
+    // {
+    //   name: "놀이터", 
+    //   subMenu: [
+    //     { label: "Vertex", route: "/play/vertexai" },
+    //     { label: "TextGenerator", route: "/play/textgenerator" },
+    //   ] 
+    // },
   ];
 
   const profileMenus = [
