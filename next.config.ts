@@ -2,7 +2,6 @@ import { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   webpack: (config) => {
     config.watchOptions = {
       poll: 1000,

@@ -92,6 +92,15 @@ export default function CharacterDetailPage() {
     router.push(`/board/character/edit/${encodeURIComponent(decodedId)}`);
   };
 
+  const handleImageClick = (index: number) => {
+    if (renderedIndexes.size === imageUrls.length) {
+      open(0, index);
+    } else {
+      alert("이미지가 아직 모두 로딩되지 않았습니다.")
+    }
+  };
+
+
   return (
     <div className="max-w-6xl mx-auto my-10 p-4 md:py-4 md:px-12 bg-gray-900 text-white rounded-lg shadow-lg relative overflow-hidden">
       {/* 캐릭터 이미지 슬라이더 */}
@@ -111,7 +120,7 @@ export default function CharacterDetailPage() {
                       src={img}
                       alt={`Slide ${index}`}
                       className="rounded-lg w-full max-h-[712px] object-contain cursor-pointer hover:scale-105 transition-transform"
-                      onClick={() => open(0, index)}
+                      onClick={() => handleImageClick(index)}
                       onLoad={() => handleImageLoad(index)}
                       onError={() => handleImageError()}
                     />
