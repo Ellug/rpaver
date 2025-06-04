@@ -92,6 +92,7 @@ export default function CharacterDetailPage() {
     router.push(`/board/character/edit/${encodeURIComponent(decodedId)}`);
   };
 
+  // 이미지 클릭시 실행 - 렌더 완료 전에 모달 open 방지
   const handleImageClick = (index: number) => {
     if (renderedIndexes.size === imageUrls.length) {
       open(0, index);
@@ -103,11 +104,39 @@ export default function CharacterDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto my-10 p-4 md:py-4 md:px-12 bg-gray-900 text-white rounded-lg shadow-lg relative overflow-hidden">
+      {/* 이미지 렌더링 프로그레스 바 */}
+      <div className="w-full mx-auto mb-6">
+        <div className="w-full bg-gray-700 rounded-full h-1">
+          <div
+            className="bg-green-400 h-1 rounded-full transition-all duration-300"
+            style={{
+              width: `${(renderedIndexes.size / imageUrls.length) * 100}%`,
+            }}
+          />
+        </div>
+      </div>
+
       {/* 캐릭터 이미지 슬라이더 */}
       {imageUrls.length > 0 && (
         <div className="relative flex justify-center">
           <div className="w-full max-w-5xl">
-            <Slider dots infinite speed={100} slidesToShow={1} slidesToScroll={1} arrows adaptiveHeight>
+            <Slider
+              dots={true}
+              infinite
+              speed={100}
+              slidesToShow={1}
+              slidesToScroll={1}
+              arrows
+              adaptiveHeight
+              responsive={[
+                {
+                  breakpoint: 768,
+                  settings: {
+                    dots: false,    // 모바일에서 dots 비활성화
+                  },
+                },
+              ]}
+            >
               {imageUrls.map((img, index) => (
                 <div key={index} className="flex justify-center">
                   <div className="text-xs pb-2">
