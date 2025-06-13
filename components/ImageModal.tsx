@@ -10,13 +10,21 @@ type ImageModalProps = {
 };
 
 export default function ImageModal({ imageUrl, onClose, onPrev, onNext }: ImageModalProps) {
-
   useEffect(() => {
-    document.body.style.overflow = "hidden"; // 스크롤 막기
-    return () => {
-      document.body.style.overflow = "auto"; // 원복
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onPrev();
+      if (e.key === "ArrowRight") onNext();
     };
-  }, []);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "auto";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose, onPrev, onNext]);
 
   return (
     <div
