@@ -33,6 +33,13 @@ export default function CharacterDetailPage() {
   const { selectedItem, open, close, next, prev } = useImageNavigator<string>([imageUrls]);
   const { renderedIndexes, handleImageLoad, handleImageError } = useImageRenderQueue(imageUrls.length);
 
+  const [showToast, setShowToast] = useState(false);
+
+  const showImageToast = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000); // 3초 후 자동 숨김
+  };
+
   useEffect(() => {
     if (!decodedId) return;
 
@@ -97,7 +104,7 @@ export default function CharacterDetailPage() {
     if (renderedIndexes.size === imageUrls.length) {
       open(0, index);
     } else {
-      alert("이미지가 아직 모두 로딩되지 않았습니다.")
+      showImageToast();
     }
   };
 
@@ -119,6 +126,11 @@ export default function CharacterDetailPage() {
       {/* 캐릭터 이미지 슬라이더 */}
       {imageUrls.length > 0 && (
         <div className="relative flex justify-center">
+          {showToast && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-red-400 text-sm px-4 py-2 rounded shadow-lg z-50">
+              이미지가 아직 모두 로딩되지 않았습니다.
+            </div>
+          )}
           <div className="w-full max-w-5xl">
             <Slider
               dots={true}

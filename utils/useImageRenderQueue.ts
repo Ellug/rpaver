@@ -35,7 +35,7 @@ export function useImageRenderQueue(length: number) {
   }, [length]);
 
   const handleImageLoad = (index: number) => {
-    console.log(`✅ img${index} loaded`);
+    // console.log(`✅ img${index} loaded`);
     const nextIndex = renderIndexRef.current + 1;
     const queue = renderQueueRef.current;
 
