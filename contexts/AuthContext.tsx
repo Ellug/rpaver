@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 import { auth, db } from "@/libs/firebaseConfig";
-import { signInWithEmailAndPassword, signOut, User } from "firebase/auth";
+import { browserLocalPersistence, setPersistence, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp, FieldValue } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
@@ -104,6 +104,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
+      // 로그인 지속 설정
+      await setPersistence(auth, browserLocalPersistence);
+
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedInUser = userCredential.user;
 

@@ -21,6 +21,7 @@ export default function CharacterGalleryLibrary() {
   const [showCharacterList, setShowCharacterList] = useState(false);
   const [renderedIndexes, setRenderedIndexes] = useState<{ [folder: string]: Set<number> }>({});
   const [showToastFor, setShowToastFor] = useState<string | null>(null);
+  const [downloadingFolders, setDownloadingFolders] = useState<{ [folder: string]: boolean }>({});
   
   const fabRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -95,6 +96,18 @@ export default function CharacterGalleryLibrary() {
     }
   };
 
+  const handleDownloadAlbum = async (folderName: string) => {
+    setDownloadingFolders(prev => ({ ...prev, [folderName]: true }));
+
+    try {
+      await downloadAlbum(folderName);
+    } catch (e) {
+      console.error("🔥 다운로드 실패:", e);
+    } finally {
+      setDownloadingFolders(prev => ({ ...prev, [folderName]: false }));
+    }
+  };
+
   // 특정 캐릭터 섹션으로 스크롤 이동
   const scrollToCharacter = (folderName: string) => {
     if (sectionRefs.current[folderName]) {
@@ -131,10 +144,11 @@ export default function CharacterGalleryLibrary() {
               </h2>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => downloadAlbum(folder, gallery[folder] || [])}
-                  className="text-sm bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600 transition"
+                  onClick={() => handleDownloadAlbum(folder)}
+                  className="text-sm bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600 transition disabled:opacity-50"
+                  disabled={downloadingFolders[folder]}
                 >
-                  앨범 다운로드
+                  {downloadingFolders[folder] ? "다운로드 중..." : "앨범 다운로드"}
                 </button>
                 <button
                   onClick={() => toggleFolder(folder)}

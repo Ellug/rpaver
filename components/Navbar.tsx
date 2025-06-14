@@ -35,8 +35,8 @@ export default function Navbar() {
     { 
       name: "갤러리", 
       subMenu: [
-        { label: "캐릭터", route: "/gallery/character" },
-        { label: "캐릭터2", route: "/gallery/library" },
+        // { label: "캐릭터", route: "/gallery/character" },
+        { label: "캐릭터", route: "/gallery/library" },
         { label: "저장소", route: "/gallery/stock" },
         { label: "AI", route: "/gallery/ai" },
         { label: "폴더", route: "/gallery/folder" }

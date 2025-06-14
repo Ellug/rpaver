@@ -1,4 +1,4 @@
-export const downloadAlbum = async (folderName: string, imageUrls: string[]) => {
+export const downloadAlbum = async (folderName: string) => {
   try {
     const res = await fetch("/api/download-album", {
       method: "POST",
