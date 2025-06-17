@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 import { auth, db } from "@/libs/firebaseConfig";
-import { browserLocalPersistence, setPersistence, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
+import { browserLocalPersistence, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp, FieldValue } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { FirebaseError } from "firebase/app";
@@ -42,6 +42,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [userData, loading, router]);
   
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Firebase 내부 세션으로부터 자동 로그인 상태 복원
+        await fetchUserData(user);
+      } else {
+        setUserData(null);
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     // 브라우저 세션에서 데이터 불러오기 (새로고침 시 유지)
